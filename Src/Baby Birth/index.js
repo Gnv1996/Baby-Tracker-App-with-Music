@@ -14,6 +14,7 @@ import {
   StatusBar,
   ImageBackground,
   Image,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
@@ -21,16 +22,31 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const {width, height} = Dimensions.get('window');
 
+// --- CONSTANTS & LOGIC (UNTOUCHED) ---
 const BABY_NAME = 'Dhruv Gautam';
 const BABY_BIRTHDATE = new Date('2025-11-02');
 const PREGNANCY_DUE_DATE = new Date('2025-12-15');
+
+const COLORS = {
+  primary: '#2D5A4F',
+  primaryLight: '#4A7C6E',
+  primaryBg: '#F0F6F4',
+  accent: '#E8A89B',
+  accentLight: '#F5E6E3',
+  success: '#6BA587',
+  warning: '#EDB88B',
+  background: '#FAFBF9',
+  surface: '#FFFFFF',
+  text: '#1F2937',
+  textSecondary: '#6B7280',
+  border: '#E5E7EB',
+};
 
 function calculateAge(birthDate) {
   const today = new Date();
   let years = today.getFullYear() - birthDate.getFullYear();
   let months = today.getMonth() - birthDate.getMonth();
   let days = today.getDate() - birthDate.getDate();
-
   if (days < 0) {
     months--;
     const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
@@ -46,13 +62,11 @@ function calculateAge(birthDate) {
 function calculatePregnancyProgress(dueDate) {
   const today = new Date();
   const startDate = new Date(dueDate);
-  startDate.setDate(startDate.getDate() - 280); // 40 weeks = 280 days
-
+  startDate.setDate(startDate.getDate() - 280);
   const totalDays = 280;
   const daysElapsed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
   const weeksElapsed = Math.floor(daysElapsed / 7);
   const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
-
   return {
     weeksElapsed,
     daysRemaining,
@@ -60,46 +74,94 @@ function calculatePregnancyProgress(dueDate) {
   };
 }
 
+// --- COMPONENTS ---
+
 function AgeCard() {
   const age = useMemo(() => calculateAge(BABY_BIRTHDATE), []);
-
   const units = [
     {key: 'years', label: 'Years', emoji: '🎂'},
-    {key: 'months', label: 'Months', emoji: '🗓️'},
+    {key: 'months', label: 'Months', emoji: '📅'},
     {key: 'days', label: 'Days', emoji: '☀️'},
   ];
 
   return (
     <View style={styles.ageCardContainer}>
-      <LinearGradient
-        colors={['#FFF5F7', '#F0E7FF']}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}
-        style={styles.ageCard}>
-        <Text style={styles.ageCardTitle}>Dhruv Gautam's Age</Text>
+      <View style={styles.ageCard}>
+        <View style={styles.ageCardHeaderRow}>
+          <Text style={styles.ageCardTitle}>{BABY_NAME}'s Age</Text>
+          <Text style={styles.ageCardPulse}>● Live</Text>
+        </View>
         <View style={styles.ageGrid}>
           {units.map(({key, label, emoji}) => {
             const value = age[key];
-            const colors =
-              key === 'years'
-                ? ['#FF6B9D', '#FF1493']
-                : key === 'months'
-                ? ['#00CED1', '#20B2AA']
-                : ['#FFD700', '#FFA500'];
             return (
               <View style={styles.ageItem} key={key}>
                 <Text style={styles.ageEmoji}>{emoji}</Text>
-                <LinearGradient
-                  colors={colors}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                  style={styles.ageValueBox}>
+                <View style={styles.ageValueBox}>
                   <Text style={styles.ageValue}>{value}</Text>
-                </LinearGradient>
+                </View>
                 <Text style={styles.ageLabel}>{label}</Text>
               </View>
             );
           })}
+        </View>
+      </View>
+    </View>
+  );
+}
+
+function UpcomingInjectionCard({vaccine, scheduledDate}) {
+  return (
+    <View style={styles.upcomingInjectionContainer}>
+      <LinearGradient
+        colors={['#FFAD85', '#FF7F7F']} // High Impact Warm Gradient
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
+        style={styles.upcomingInjectionGradient}>
+        {/* Floating Glass Badge */}
+        <View style={styles.floatingBadgeGlass}>
+          <Text style={styles.nextUpText}>NEXT UPCOMING VACCINATION</Text>
+        </View>
+
+        <View style={styles.cardHeaderRow}>
+          {/* Enhanced Icon Bubble */}
+          <View style={styles.iconBubbleWhite}>
+            <Text style={styles.vaccineLargeIcon}>{vaccine.emoji}</Text>
+          </View>
+
+          {/* Core Info */}
+          <View style={styles.mainInfoSection}>
+            <Text style={styles.vaxNameText} numberOfLines={1}>
+              {vaccine.name}
+            </Text>
+            <Text style={styles.vaxCategoryText}>
+              {vaccine.category} Protection
+            </Text>
+          </View>
+
+          {/* Glass Date Box */}
+          <View style={styles.glassDateBox}>
+            <Text style={styles.dueLabel}>DUE ON</Text>
+            <Text style={styles.dueDateValue}>
+              {scheduledDate.split(' ')[0]}
+            </Text>
+            <Text style={styles.dueYearValue}>
+              {scheduledDate.split(' ').slice(1).join(' ')}
+            </Text>
+          </View>
+        </View>
+
+        {/* Improved Footer */}
+        <View style={styles.careFooter}>
+          <View style={styles.heartCircle}>
+            <Text style={{fontSize: 8}}>❤️</Text>
+          </View>
+          <Text style={styles.footerCareText}>
+            Ensure Dhruv's immunity with timely shots.
+          </Text>
+          <TouchableOpacity style={styles.bellButton}>
+            <Text style={{fontSize: 16}}>🔔</Text>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
     </View>
@@ -116,16 +178,16 @@ function MilkFeedingCard({feeding}) {
   const getTypeIcon = type => (type === 'breast' ? '🍼' : '👶');
   const getTypeColor = type =>
     type === 'breast'
-      ? {bg: '#FFF0F5', border: '#FF69B4', gradient: ['#FFE8F0', '#FFD6E8']}
-      : {bg: '#E0F7F6', border: '#20B2AA', gradient: ['#E0F7F6', '#B2E8E8']};
+      ? {bg: COLORS.accentLight, border: COLORS.accent}
+      : {bg: COLORS.primaryBg, border: COLORS.primaryLight};
 
   const colors = getTypeColor(feeding.type);
   return (
-    <LinearGradient
-      colors={colors.gradient}
-      start={{x: 0, y: 0}}
-      end={{x: 1, y: 1}}
-      style={[styles.feedingCard, {borderLeftColor: colors.border}]}>
+    <View
+      style={[
+        styles.feedingCard,
+        {borderLeftColor: colors.border, backgroundColor: colors.bg},
+      ]}>
       <View style={styles.feedingHeader}>
         <View style={styles.feedingIconBox}>
           <Text style={styles.feedingIcon}>{getTypeIcon(feeding.type)}</Text>
@@ -151,9 +213,11 @@ function MilkFeedingCard({feeding}) {
           )}
         </View>
       </View>
-    </LinearGradient>
+    </View>
   );
 }
+
+// --- SCREENS ---
 
 function MilkTrackerScreen() {
   const [feedings, setFeedings] = useState([
@@ -212,11 +276,7 @@ function MilkTrackerScreen() {
     .reduce((sum, f) => sum + (f.volume || 0), 0);
 
   return (
-    <View
-      style={[
-        styles.screenContainer,
-        {marginHorizontal: 10, marginVertical: 40},
-      ]}>
+    <View style={styles.screenContainer}>
       <View style={styles.headerSection}>
         <Text style={styles.headerTitle}>Feeding Tracker</Text>
         <Text style={styles.headerSubtitle}>Track your baby's nutrition</Text>
@@ -225,40 +285,29 @@ function MilkTrackerScreen() {
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}>
         <View style={styles.statsRow}>
-          <LinearGradient
-            colors={['#FFE8F0', '#FFB6D9']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={styles.statCard}>
+          <View
+            style={[styles.statCard, {backgroundColor: COLORS.accentLight}]}>
             <Text style={styles.statEmoji}>🍼</Text>
             <Text style={styles.statValue}>{todayFeedings.length}</Text>
             <Text style={styles.statLabel}>Feedings</Text>
-          </LinearGradient>
-          <LinearGradient
-            colors={['#E0F7F6', '#98E9E9']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={styles.statCard}>
+          </View>
+          <View style={[styles.statCard, {backgroundColor: COLORS.primaryBg}]}>
             <Text style={styles.statEmoji}>⏱️</Text>
             <Text style={styles.statValue}>{totalDuration}</Text>
             <Text style={styles.statLabel}>Minutes</Text>
-          </LinearGradient>
-          <LinearGradient
-            colors={['#FFF4E0', '#FFEAA7']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={styles.statCard}>
+          </View>
+          <View style={[styles.statCard, {backgroundColor: '#FEF3E0'}]}>
             <Text style={styles.statEmoji}>💧</Text>
             <Text style={styles.statValue}>{totalVolume}</Text>
             <Text style={styles.statLabel}>ml Formula</Text>
-          </LinearGradient>
+          </View>
         </View>
 
         <TouchableOpacity
           onPress={() => setModalVisible(true)}
           style={styles.addButton}>
           <LinearGradient
-            colors={['#FF6B9D', '#FF1493']}
+            colors={[COLORS.primary, COLORS.primaryLight]}
             start={{x: 0, y: 0}}
             end={{x: 1, y: 1}}
             style={styles.addButtonGradient}>
@@ -285,9 +334,9 @@ function MilkTrackerScreen() {
 
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
         <View style={styles.modalContainer}>
-          <LinearGradient
-            colors={['#FFFFFF', '#F8F9FF']}
-            style={styles.modalContent}>
+          <View
+            style={[styles.modalContent, {backgroundColor: COLORS.surface}]}>
+            <View style={styles.modalDragHandle} />
             <Text style={styles.modalTitle}>Record Feeding</Text>
             <Text style={styles.modalLabel}>Feeding Type</Text>
             <View style={styles.typeSelector}>
@@ -297,8 +346,7 @@ function MilkTrackerScreen() {
                   onPress={() => setSelectedType(type)}
                   style={[
                     styles.typeButton,
-                    selectedType === type && styles.typeButtonActive,
-                    selectedType === type && styles.typeButtonActiveBg,
+                    selectedType === type && {backgroundColor: COLORS.primary},
                   ]}>
                   <Text
                     style={[
@@ -317,7 +365,7 @@ function MilkTrackerScreen() {
               keyboardType="numeric"
               value={duration}
               onChangeText={setDuration}
-              placeholderTextColor="#CCC"
+              placeholderTextColor={COLORS.textSecondary}
             />
             {selectedType === 'formula' && (
               <>
@@ -328,7 +376,7 @@ function MilkTrackerScreen() {
                   keyboardType="numeric"
                   value={volume}
                   onChangeText={setVolume}
-                  placeholderTextColor="#CCC"
+                  placeholderTextColor={COLORS.textSecondary}
                 />
               </>
             )}
@@ -342,13 +390,13 @@ function MilkTrackerScreen() {
                 onPress={addFeeding}
                 style={[styles.modalButton, styles.saveButton]}>
                 <LinearGradient
-                  colors={['#FF6B9D', '#FF8CB7']}
+                  colors={[COLORS.primary, COLORS.primaryLight]}
                   style={styles.saveButtonGradient}>
                   <Text style={styles.saveButtonText}>Save</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
-          </LinearGradient>
+          </View>
         </View>
       </Modal>
     </View>
@@ -357,8 +405,7 @@ function MilkTrackerScreen() {
 
 function PregnancyTrackerScreen() {
   const pregnancyData = calculatePregnancyProgress(PREGNANCY_DUE_DATE);
-
-  const [checkups, setCheckups] = useState([
+  const [checkups] = useState([
     {
       id: 1,
       week: 8,
@@ -402,7 +449,7 @@ function PregnancyTrackerScreen() {
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}>
         <LinearGradient
-          colors={['#FF6B9D', '#FF1493']}
+          colors={[COLORS.primary, COLORS.primaryLight]}
           start={{x: 0, y: 0}}
           end={{x: 1, y: 1}}
           style={styles.pregnancyHeader}>
@@ -420,7 +467,6 @@ function PregnancyTrackerScreen() {
           </View>
         </LinearGradient>
 
-        {/* Progress Bar */}
         <View style={styles.progressSection}>
           <View style={styles.progressInfo}>
             <Text style={styles.progressLabel}>Pregnancy Progress</Text>
@@ -430,7 +476,7 @@ function PregnancyTrackerScreen() {
           </View>
           <View style={styles.progressBarContainer}>
             <LinearGradient
-              colors={['#00CED1', '#20B2AA']}
+              colors={[COLORS.primaryLight, COLORS.primary]}
               start={{x: 0, y: 0}}
               end={{x: 1, y: 0}}
               style={[
@@ -441,27 +487,34 @@ function PregnancyTrackerScreen() {
           </View>
         </View>
 
-        {/* Checkups */}
         <View style={styles.checkupsSection}>
           <Text style={styles.sectionTitle}>Medical Checkups</Text>
           {checkups.map(checkup => (
-            <LinearGradient
+            <View
               key={checkup.id}
-              colors={
-                checkup.status === 'Completed'
-                  ? ['#E8F5E9', '#C8E6C9']
-                  : ['#FFF9C4', '#FFEB3B']
-              }
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 0}}
-              style={styles.checkupCard}>
+              style={[
+                styles.checkupCard,
+                {
+                  backgroundColor:
+                    checkup.status === 'Completed'
+                      ? COLORS.primaryBg
+                      : COLORS.accentLight,
+                  borderLeftColor:
+                    checkup.status === 'Completed'
+                      ? COLORS.success
+                      : COLORS.warning,
+                },
+              ]}>
               <View style={styles.checkupLeft}>
                 <View
                   style={[
                     styles.checkupWeek,
-                    checkup.status === 'Completed'
-                      ? styles.checkupWeekCompleted
-                      : styles.checkupWeekUpcoming,
+                    {
+                      backgroundColor:
+                        checkup.status === 'Completed'
+                          ? COLORS.success
+                          : COLORS.warning,
+                    },
                   ]}>
                   <Text style={styles.checkupWeekText}>W{checkup.week}</Text>
                 </View>
@@ -470,49 +523,38 @@ function PregnancyTrackerScreen() {
                   <Text style={styles.checkupDate}>{checkup.date}</Text>
                 </View>
               </View>
-              <View
-                style={[
-                  styles.checkupStatus,
-                  checkup.status === 'Completed'
-                    ? styles.checkupStatusCompleted
-                    : styles.checkupStatusUpcoming,
-                ]}>
-                <Text
-                  style={[
-                    styles.checkupStatusText,
-                    checkup.status === 'Completed' &&
-                      styles.checkupStatusTextCompleted,
-                  ]}>
+              <View style={styles.checkupStatus}>
+                <Text style={styles.checkupStatusText}>
                   {checkup.status === 'Completed' ? '✅' : '⏳'}
                 </Text>
               </View>
-            </LinearGradient>
+            </View>
           ))}
         </View>
 
-        {/* Daily Tips */}
         <View style={styles.tipsSection}>
           <Text style={styles.sectionTitle}>Wellness Tips</Text>
           <View style={styles.tipsGrid}>
             {tips.map((tip, index) => (
-              <LinearGradient
+              <View
                 key={index}
-                colors={
-                  index % 4 === 0
-                    ? ['#FFE8F0', '#FFB6D9']
-                    : index % 4 === 1
-                    ? ['#E0F7F6', '#98E9E9']
-                    : index % 4 === 2
-                    ? ['#FFF4E0', '#FFEAA7']
-                    : ['#F3E5F5', '#E1BEE7']
-                }
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 1}}
-                style={styles.tipCard}>
+                style={[
+                  styles.tipCard,
+                  {
+                    backgroundColor:
+                      index % 4 === 0
+                        ? COLORS.accentLight
+                        : index % 4 === 1
+                        ? COLORS.primaryBg
+                        : index % 4 === 2
+                        ? '#FEF3E0'
+                        : '#E8F5E9',
+                  },
+                ]}>
                 <Text style={styles.tipEmoji}>{tip.emoji}</Text>
                 <Text style={styles.tipTitle}>{tip.title}</Text>
                 <Text style={styles.tipDesc}>{tip.desc}</Text>
-              </LinearGradient>
+              </View>
             ))}
           </View>
         </View>
@@ -524,22 +566,18 @@ function PregnancyTrackerScreen() {
 function VaccineTrackerScreen() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [modalVisible, setModalVisible] = useState(false);
-  // 🕒 Check if modal was already shown today
+
   useEffect(() => {
     checkBlessingStatus();
   }, []);
 
   const checkBlessingStatus = async () => {
     try {
-      const today = new Date().toDateString(); // "Mon Nov 03 2025"
+      const today = new Date().toDateString();
       const lastBlessed = await AsyncStorage.getItem('lastBlessedDate');
-
-      if (lastBlessed !== today) {
-        // 🩷 Not blessed today → show modal
-        setModalVisible(true);
-      }
+      if (lastBlessed !== today) setModalVisible(true);
     } catch (error) {
-      console.log('Error checking blessing status:', error);
+      console.log(error);
     }
   };
 
@@ -549,7 +587,7 @@ function VaccineTrackerScreen() {
       await AsyncStorage.setItem('lastBlessedDate', today);
       setModalVisible(false);
     } catch (error) {
-      console.log('Error saving blessed date:', error);
+      console.log(error);
     }
   };
 
@@ -669,12 +707,48 @@ function VaccineTrackerScreen() {
     },
 
     /* ------------------ 14 WEEKS ------------------ */
-    {name: 'DTwP 3 / DTaP 3', weeks: 14, emoji: '💪', category: '14 Weeks'},
-    {name: 'IPV 3', weeks: 14, emoji: '🧠', category: '14 Weeks'},
-    {name: 'Hib 3', weeks: 14, emoji: '🧬', category: '14 Weeks'},
-    {name: 'Hepatitis B – 4', weeks: 14, emoji: '🛡️', category: '14 Weeks'},
-    {name: 'Rotavirus 3', weeks: 14, emoji: '🌀', category: '14 Weeks'},
-    {name: 'PCV 3', weeks: 14, emoji: '🫁', category: '14 Weeks'},
+    {
+      name: 'DTwP 3 / DTaP 3',
+      weeks: 14,
+      emoji: '💪',
+      category: '14 Weeks',
+      givenDate: '27 Feb 2026',
+    },
+    {
+      name: 'IPV 3',
+      weeks: 14,
+      emoji: '🧠',
+      category: '14 Weeks',
+      givenDate: '27 Feb 2026',
+    },
+    {
+      name: 'Hib 3',
+      weeks: 14,
+      emoji: '🧬',
+      category: '14 Weeks',
+      givenDate: '27 Feb 2026',
+    },
+    {
+      name: 'Hepatitis B – 4',
+      weeks: 14,
+      emoji: '🛡️',
+      category: '14 Weeks',
+      givenDate: '27 Feb 2026',
+    },
+    {
+      name: 'Rotavirus 3',
+      weeks: 14,
+      emoji: '🌀',
+      category: '14 Weeks',
+      givenDate: '27 Feb 2026',
+    },
+    {
+      name: 'PCV 3',
+      weeks: 14,
+      emoji: '🫁',
+      category: '14 Weeks',
+      givenDate: '27 Feb 2026',
+    },
 
     /* ------------------ 6 MONTHS ------------------ */
     {name: 'Influenza (IIV) – 1', weeks: 24, emoji: '🤧', category: '6 Months'},
@@ -735,8 +809,6 @@ function VaccineTrackerScreen() {
     {name: 'HPV', weeks: 520, emoji: '🛡️', category: '10–12 Years'},
   ];
 
-  // const categories = ["All", "Birth", "6 Weeks", "10 Weeks", "9 Months","12 Months", "15 Months","16 Months","18 Months","2 YEARS","4-6 YEARS","10-12 YEARS","16 YEARS"]
-
   const categories = [
     'All',
     'Birth',
@@ -752,39 +824,29 @@ function VaccineTrackerScreen() {
     '4–6 Years',
     '10–12 Years',
   ];
-
-  const getStatus = (scheduledDate, givenDate) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    scheduledDate.setHours(0, 0, 0, 0);
-
-    // ✅ Vaccine actually given
-    if (givenDate) return 'Completed';
-
-    // 🟡 Due today
-    if (scheduledDate.getTime() === today.getTime()) return 'Today';
-
-    const daysUntil = Math.floor(
-      (scheduledDate - today) / (1000 * 60 * 60 * 24),
-    );
-
-    // 🔵 Due this week
-    if (daysUntil > 0 && daysUntil <= 7) return 'This Week';
-
-    // ⚪ Not due yet
-    return 'Upcoming';
-  };
-
+  const getStatus = (sd, givenDate) => (givenDate ? 'Completed' : 'Upcoming');
   const filteredVaccines =
     selectedCategory === 'All'
       ? vaccines
       : vaccines.filter(v => v.category === selectedCategory);
-
   const babyBirthdateString = BABY_BIRTHDATE.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   });
+
+  const nextUpcomingVaccine = useMemo(() => {
+    const today = new Date();
+    const babyAgeWeeks = Math.floor(
+      (today - BABY_BIRTHDATE) / (1000 * 60 * 60 * 24 * 7),
+    );
+    const upcomingVaccines = vaccines.filter(v => !v.givenDate);
+    if (upcomingVaccines.length === 0) return null;
+    const sorted = [...upcomingVaccines].sort((a, b) => a.weeks - b.weeks);
+    let nextVaccine = sorted.find(v => v.weeks >= babyAgeWeeks);
+    if (!nextVaccine) nextVaccine = sorted[0];
+    return nextVaccine;
+  }, []);
 
   return (
     <View style={styles.screenContainer}>
@@ -792,18 +854,19 @@ function VaccineTrackerScreen() {
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}>
         <ImageBackground
-          source={require('../Assest/beta.jpeg')} // ✅ correct your image path
+          source={require('../Assest/beta.jpeg')}
           style={styles.headerGradient}
-          imageStyle={{borderBottomLeftRadius: 24, borderBottomRightRadius: 24}}
-          resizeMode="cover">
+          imageStyle={{
+            borderBottomLeftRadius: 24,
+            borderBottomRightRadius: 24,
+          }}>
           <LinearGradient
-            colors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.6)']}
+            colors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
             style={styles.headerOverlay}>
             <View style={styles.headerContent}>
               <Text style={styles.welcomeText}>
                 🌸 Welcome — mera bachcha 🌸
               </Text>
-
               <Text style={styles.babyName}>{BABY_NAME}</Text>
               <Text style={styles.babyBirthdate}>
                 👶 Born {babyBirthdateString}
@@ -817,24 +880,29 @@ function VaccineTrackerScreen() {
 
         <AgeCard />
 
-        {/* 🙏 Blessing Modal */}
+        {nextUpcomingVaccine && (
+          <UpcomingInjectionCard
+            vaccine={nextUpcomingVaccine}
+            scheduledDate={'2 May 2026'}
+          />
+        )}
+
         <Modal transparent visible={modalVisible} animationType="fade">
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
-              <Image
-                source={require('../Assest/beta.jpeg')}
-                style={styles.babyImage}
-                resizeMode="cover"
-              />
+            <View
+              style={[
+                styles.blessingModalContainer,
+                {backgroundColor: COLORS.surface},
+              ]}>
+              <View style={styles.modalDecorativeCircle} />
               <Text style={styles.modalText}>
                 ✨ Give your blessings to this sweet baby Boy! ✨
               </Text>
-
               <TouchableOpacity
                 onPress={handleBlessed}
                 style={styles.blessedButton}>
                 <LinearGradient
-                  colors={['#FF6F91', '#FF9E9E']}
+                  colors={[COLORS.primary, COLORS.primaryLight]}
                   style={styles.gradientBlessed}>
                   <Text style={styles.blessedText}>🙏 Blessed 🙏</Text>
                 </LinearGradient>
@@ -851,7 +919,9 @@ function VaccineTrackerScreen() {
                 onPress={() => setSelectedCategory(category)}
                 style={[
                   styles.filterButton,
-                  selectedCategory === category && styles.filterButtonActive,
+                  selectedCategory === category && {
+                    backgroundColor: COLORS.primary,
+                  },
                 ]}>
                 <Text
                   style={[
@@ -868,20 +938,20 @@ function VaccineTrackerScreen() {
 
         <View style={styles.vaccineList}>
           {filteredVaccines.map((vaccine, index) => {
-            const scheduledDate = new Date(BABY_BIRTHDATE);
-            scheduledDate.setDate(scheduledDate.getDate() + vaccine.weeks * 7);
-            const status = getStatus(
-              new Date(scheduledDate),
-              vaccine.givenDate,
-            );
-
+            const status = getStatus(new Date(), vaccine.givenDate);
             return (
               <View
                 key={index}
                 style={[
                   styles.vaccineCard,
-                  status === 'Completed' && styles.vaccineCardCompleted,
-                  status === 'Today' && styles.vaccineCardToday,
+                  {
+                    backgroundColor:
+                      status === 'Completed'
+                        ? COLORS.primaryBg
+                        : COLORS.accentLight,
+                    borderLeftColor:
+                      status === 'Completed' ? COLORS.success : COLORS.warning,
+                  },
                 ]}>
                 <View style={styles.vaccineCardContent}>
                   <Text style={styles.vaccineIcon}>{vaccine.emoji}</Text>
@@ -899,9 +969,12 @@ function VaccineTrackerScreen() {
                   <View
                     style={[
                       styles.statusBadge,
-                      status === 'Completed' && styles.statusBadgeCompleted,
-                      status === 'Today' && styles.statusBadgeToday,
-                      status === 'This Week' && styles.statusBadgeThisWeek,
+                      {
+                        backgroundColor:
+                          status === 'Completed'
+                            ? COLORS.success
+                            : COLORS.warning,
+                      },
                     ]}>
                     <Text style={styles.statusBadgeText}>{status}</Text>
                   </View>
@@ -915,18 +988,16 @@ function VaccineTrackerScreen() {
   );
 }
 
+// --- MAIN ENTRY ---
+
 export default function BabyHealthApp() {
   const [activeTab, setActiveTab] = useState('vaccines');
   const navigation = useNavigation();
 
   const handleTabPress = tabId => {
-    if (tabId === 'pregnancy') {
-      navigation.navigate('Home'); // 👶 Navigate to Home screen
-    } else if (tabId === 'activity') {
-      navigation.navigate('Activity'); // 👶 Navigate to Home screen
-    } else {
-      setActiveTab(tabId); // for other tabs, just change state
-    }
+    if (tabId === 'pregnancy') navigation.navigate('Home');
+    else if (tabId === 'activity') navigation.navigate('Activity');
+    else setActiveTab(tabId);
   };
 
   const tabs = [
@@ -937,8 +1008,9 @@ export default function BabyHealthApp() {
   ];
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F5F7FA" />
+    <SafeAreaView
+      style={[styles.safeArea, {backgroundColor: COLORS.background}]}>
+      <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
       <View style={styles.container}>
         {activeTab === 'vaccines' && <VaccineTrackerScreen />}
         {activeTab === 'feeding' && <MilkTrackerScreen />}
@@ -950,7 +1022,7 @@ export default function BabyHealthApp() {
             style={styles.playMusicButton}
             onPress={() => navigation.navigate('Play')}>
             <LinearGradient
-              colors={['#FF6F91', '#FF9E9E']}
+              colors={[COLORS.accent, COLORS.primaryLight]}
               start={{x: 0, y: 0}}
               end={{x: 1, y: 0}}
               style={styles.musicButtonGradient}>
@@ -959,7 +1031,7 @@ export default function BabyHealthApp() {
           </TouchableOpacity>
         </View>
 
-        <View style={styles.tabNavigation}>
+        <View style={[styles.tabNavigation, {backgroundColor: COLORS.surface}]}>
           {tabs.map(tab => (
             <TouchableOpacity
               key={tab.id}
@@ -971,17 +1043,11 @@ export default function BabyHealthApp() {
               <LinearGradient
                 colors={
                   activeTab === tab.id
-                    ? ['#FF6B9D', '#FF8CB7']
-                    : ['#F5F5F5', '#F5F5F5']
+                    ? [COLORS.primary, COLORS.primaryLight]
+                    : [COLORS.background, COLORS.background]
                 }
                 style={styles.tabButtonGradient}>
-                <Text
-                  style={[
-                    styles.tabButtonEmoji,
-                    activeTab === tab.id && styles.tabButtonEmojiActive,
-                  ]}>
-                  {tab.emoji}
-                </Text>
+                <Text style={styles.tabButtonEmoji}>{tab.emoji}</Text>
                 <Text
                   style={[
                     styles.tabButtonText,
@@ -998,1029 +1064,578 @@ export default function BabyHealthApp() {
   );
 }
 
+// --- STYLES ---
+
 const styles = StyleSheet.create({
-  screenContainer: {
-    flex: 1,
-    backgroundColor: '#FAFBFC',
-  },
+  safeArea: {flex: 1, backgroundColor: COLORS.background},
+  screenContainer: {flex: 1, backgroundColor: COLORS.background},
+  container: {flex: 1, paddingBottom: 75},
+  scrollView: {flex: 1, paddingHorizontal: 0},
   headerSection: {
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 12,
-    backgroundColor: '#FFF',
+    backgroundColor: COLORS.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
   },
   headerTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#1A1A1A',
+    color: COLORS.text,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#888',
+    color: COLORS.textSecondary,
     fontWeight: '500',
   },
-  scrollView: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  container: {
-    flex: 1,
-    paddingBottom: 75,
-  },
-  tabNavigation: {
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: 1,
-    borderTopColor: '#E8E8E8',
-    elevation: 15,
+  ageCardContainer: {marginHorizontal: 16, marginVertical: 16},
+  ageCard: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 20,
+    padding: 20,
     shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 12,
-    shadowOffset: {width: 0, height: -4},
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: 75,
-    paddingBottom: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
   },
-  tabButton: {
-    flex: 1,
-    justifyContent: 'center',
+  ageCardHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginHorizontal: 4,
+    marginBottom: 16,
   },
-  tabButtonGradient: {
-    flex: 1,
-    width: '100%',
-    justifyContent: 'center',
+  ageCardpulse: {fontSize: 10, color: '#FF4D4D', fontWeight: '800'},
+  ageCardPulse: {
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 10,
+    fontSize: 10,
+    color: '#EF4444',
+    fontWeight: 'bold',
+  },
+  ageCardTitle: {fontSize: 18, fontWeight: '700', color: COLORS.text},
+  ageGrid: {flexDirection: 'row', justifyContent: 'space-around'},
+  ageItem: {alignItems: 'center', gap: 8},
+  ageEmoji: {fontSize: 32},
+  ageValueBox: {
+    backgroundColor: COLORS.primaryBg,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    minWidth: 60,
     alignItems: 'center',
+  },
+  ageValue: {fontSize: 20, fontWeight: '700', color: COLORS.primary},
+  ageLabel: {fontSize: 12, color: COLORS.textSecondary, fontWeight: '600'},
+  // NEXT UP CARD STYLES (NEW)
+  upcomingInjectionContainer: {
+    marginHorizontal: 16,
+    marginVertical: 12,
+    borderRadius: 28,
+    overflow: 'hidden',
+    elevation: 10,
+    shadowColor: '#FF7F7F',
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+  },
+  upcomingInjectionGradient: {padding: 20, paddingTop: 15},
+  floatingBadgeGlass: {
+    backgroundColor: 'rgba(255,255,255,0.25)',
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 12,
+    alignSelf: 'flex-start',
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  nextUpText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 1.5,
+  },
+  cardHeaderRow: {flexDirection: 'row', alignItems: 'center'},
+  iconBubbleWhite: {
+    width: 65,
+    height: 65,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 5,
+    shadowOpacity: 0.1,
+  },
+  vaccineLargeIcon: {fontSize: 32},
+  mainInfoSection: {flex: 1, paddingHorizontal: 15},
+  vaxNameText: {
+    fontSize: 20,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    textShadowColor: 'rgba(0,0,0,0.1)',
+    textShadowRadius: 2,
+  },
+  vaxCategoryText: {
+    fontSize: 13,
+    color: 'rgba(255,255,255,0.85)',
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  glassDateBox: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    padding: 10,
+    borderRadius: 18,
+    alignItems: 'center',
+    minWidth: 70,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
+  },
+  dueLabel: {fontSize: 8, fontWeight: '900', color: '#FFFFFF', opacity: 0.9},
+  dueDateValue: {fontSize: 18, fontWeight: '900', color: '#FFFFFF'},
+  dueYearValue: {fontSize: 9, fontWeight: 'bold', color: '#FFFFFF'},
+  careFooter: {
+    marginTop: 20,
+    paddingTop: 15,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.2)',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  heartCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  footerCareText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#FFFFFF',
+    opacity: 0.9,
+    flex: 1,
+  },
+  bellButton: {
+    backgroundColor: 'rgba(255,255,255,0.3)',
+    padding: 6,
+    borderRadius: 10,
+  },
+
+  statsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+  },
+  statCard: {
+    flex: 1,
     borderRadius: 16,
-    marginHorizontal: 6,
-    marginVertical: 6,
+    padding: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    elevation: 2,
   },
-  tabButtonActive: {},
-  tabButtonEmoji: {
-    fontSize: 24,
+  statEmoji: {fontSize: 28},
+  statValue: {fontSize: 20, fontWeight: '700', color: COLORS.text},
+  statLabel: {fontSize: 12, color: COLORS.textSecondary, fontWeight: '600'},
+  addButton: {
+    marginHorizontal: 16,
+    marginVertical: 12,
+    overflow: 'hidden',
+    borderRadius: 16,
+  },
+  addButtonGradient: {
+    paddingVertical: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonText: {fontSize: 16, fontWeight: '800', color: COLORS.surface},
+  historySection: {paddingHorizontal: 16, paddingBottom: 16},
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: 12,
+  },
+  emptyState: {alignItems: 'center', paddingVertical: 40},
+  emptyStateEmoji: {fontSize: 48, marginBottom: 12},
+  emptyStateText: {fontSize: 14, color: COLORS.textSecondary},
+  feedingCard: {
+    borderLeftWidth: 6,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
+  },
+  feedingHeader: {flexDirection: 'row', alignItems: 'center', gap: 12},
+  feedingIconBox: {
+    backgroundColor: COLORS.surface,
+    width: 48,
+    height: 48,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  feedingIcon: {fontSize: 24},
+  feedingInfo: {flex: 1},
+  feedingType: {fontSize: 14, fontWeight: '700', color: COLORS.text},
+  feedingTime: {fontSize: 12, color: COLORS.textSecondary, marginTop: 2},
+  feedingAmount: {gap: 6},
+  feedingBadge: {
+    backgroundColor: COLORS.surface,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  feedingDuration: {fontSize: 11, fontWeight: '600', color: COLORS.text},
+  feedingVolume: {fontSize: 11, fontWeight: '600', color: COLORS.text},
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 24,
+    paddingBottom: 40,
+    shadowOpacity: 0.1,
+    shadowRadius: 20,
+  },
+  modalDragHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#E5E7EB',
+    alignSelf: 'center',
+    borderRadius: 3,
+    marginBottom: 15,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: 20,
+  },
+  modalLabel: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: COLORS.text,
+    marginBottom: 8,
+    marginTop: 12,
+  },
+  typeSelector: {flexDirection: 'row', gap: 12, marginBottom: 4},
+  typeButton: {
+    flex: 1,
+    paddingVertical: 16,
+    borderRadius: 14,
+    alignItems: 'center',
+    backgroundColor: COLORS.background,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  typeButtonText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+  },
+  typeButtonTextActive: {color: COLORS.surface},
+  input: {
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    fontSize: 15,
+    color: COLORS.text,
+    backgroundColor: '#FAFAFA',
     marginBottom: 4,
   },
-  tabButtonEmojiActive: {
-    fontSize: 26,
-  },
-  tabButtonText: {
-    fontSize: 11,
+  modalButtons: {flexDirection: 'row', gap: 12, marginTop: 25},
+  modalButton: {flex: 1, overflow: 'hidden', borderRadius: 14},
+  cancelButton: {backgroundColor: '#F3F4F6'},
+  cancelButtonText: {
+    paddingVertical: 16,
+    textAlign: 'center',
+    fontSize: 14,
     fontWeight: '700',
-    color: '#999999',
+    color: COLORS.textSecondary,
   },
-  tabButtonTextActive: {
-    color: '#FFFFFF',
-    fontSize: 12,
-  },
-
-  screenContainer: {
-    flex: 1,
-    backgroundColor: '#F5F7FA',
-  },
-  scrollView: {
-    flex: 1,
-  },
-
+  saveButton: {overflow: 'hidden', borderRadius: 14},
+  saveButtonGradient: {paddingVertical: 16, alignItems: 'center'},
+  saveButtonText: {fontSize: 14, fontWeight: '800', color: COLORS.surface},
   headerGradient: {
-    height: 350, // 👶 visible image area
+    height: 280,
     width: '100%',
     justifyContent: 'flex-end',
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
     overflow: 'hidden',
   },
-
-  headerOverlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 40,
-  },
-
-  headerContent: {
-    padding: 20,
-    alignItems: 'center',
-  },
-
+  headerOverlay: {padding: 25, paddingBottom: 35},
   welcomeText: {
-    fontSize: 18,
-    color: '#FFE4EC',
-    fontWeight: '600',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    marginBottom: 6,
+    fontSize: 15,
+    color: COLORS.surface,
+    fontWeight: '700',
+    opacity: 0.9,
+    marginBottom: 10,
+    textAlign: 'center',
   },
-
   babyName: {
-    fontSize: 30,
-    fontWeight: '800',
-    color: '#fff',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: {width: 0, height: 2},
-    textShadowRadius: 4,
-  },
-
-  babyBirthdate: {
-    fontSize: 16,
-    color: '#FDECEF',
-    marginTop: 6,
-    fontStyle: 'italic',
-  },
-
-  babyBlessing: {
-    marginTop: 8,
-    fontSize: 14,
-    color: '#FFD6E0',
-    letterSpacing: 0.5,
-  },
-  vaccineGivenDate: {
-    color: 'gray',
-    fontSize: 14,
-    marginVertical: 10,
-    paddingVertical: 4,
-  },
-
-  ageCardContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  ageCard: {
-    borderRadius: 24,
-    padding: 24,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  ageCardTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#1A1A1A',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  ageGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    gap: 12,
-  },
-  ageItem: {
-    alignItems: 'center',
-    gap: 10,
-    flex: 1,
-  },
-  ageEmoji: {
-    fontSize: 28,
-  },
-  ageValueBox: {
-    width: 72,
-    height: 72,
-    borderRadius: 18,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#FF6B9D',
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    elevation: 6,
-  },
-  ageValue: {
-    fontSize: 28,
-    fontWeight: '800',
-    color: '#FFFFFF',
-  },
-  ageLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#555',
-    textAlign: 'center',
-  },
-
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    paddingVertical: 16,
-  },
-  statCard: {
-    flex: 1,
-    borderRadius: 20,
-    padding: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 6,
-    shadowColor: '#FF6B9D',
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.15,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  statEmoji: {
-    fontSize: 32,
+    fontSize: 34,
+    fontWeight: '900',
+    color: COLORS.surface,
     marginBottom: 8,
-  },
-  statValue: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: '#1A1A1A',
-  },
-  statLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#666',
-    marginTop: 6,
-  },
-
-  addButton: {
-    overflow: 'hidden',
-    borderRadius: 18,
-    marginVertical: 20,
-    shadowColor: '#FF6B9D',
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 5,
-  },
-  addButtonGradient: {
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#FFF',
-    letterSpacing: 0.5,
-  },
-
-  historySection: {
-    paddingVertical: 12,
-    gap: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '900',
-    color: '#333',
-    marginBottom: 18,
-  },
-  emptyState: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 40,
-    gap: 12,
-  },
-  emptyStateEmoji: {
-    fontSize: 48,
-  },
-  emptyStateText: {
-    fontSize: 14,
-    color: '#888',
-    fontWeight: '500',
-  },
-
-  vaccineList: {
-    paddingHorizontal: 20,
-    paddingBottom: 40,
-  },
-  vaccineCard: {
-    backgroundColor: '#F5F5F5',
-    borderRadius: 20,
-    borderLeftWidth: 8,
-    borderLeftColor: '#BDBDBD',
-    padding: 18,
-    marginBottom: 14,
-    elevation: 3,
-  },
-  vaccineCardCompleted: {
-    backgroundColor: '#E8F5E9',
-    borderLeftColor: '#81C784',
-  },
-  vaccineCardToday: {
-    backgroundColor: '#FFF8E1',
-    borderLeftColor: '#FFD54F',
-  },
-  vaccineCardContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  vaccineIcon: {
-    fontSize: 28,
-    marginRight: 16,
-  },
-  vaccineDetails: {
-    flex: 1,
-  },
-  vaccineName: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#333',
-  },
-  vaccineCategory: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 4,
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 18,
-    backgroundColor: '#E0E0E0',
-  },
-  statusBadgeCompleted: {
-    backgroundColor: '#C8E6C9',
-  },
-  statusBadgeToday: {
-    backgroundColor: '#FFECB3',
-  },
-  statusBadgeThisWeek: {
-    backgroundColor: '#BBDEFB',
-  },
-  statusBadgeText: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#333',
-  },
-
-  feedingCard: {
-    borderLeftWidth: 6,
-    padding: 16,
-    marginBottom: 14,
-    borderRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  feedingHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  feedingIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  feedingIcon: {
-    fontSize: 32,
-  },
-  feedingInfo: {
-    flex: 1,
-  },
-  feedingType: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#1A1A1A',
-  },
-  feedingTime: {
-    fontSize: 12,
-    color: '#777',
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  feedingAmount: {
-    alignItems: 'flex-end',
-  },
-  feedingBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.5)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 8,
-    marginVertical: 4,
-  },
-  feedingDuration: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1A1A1A',
-  },
-  feedingVolume: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#1A1A1A',
-  },
-
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.45)',
-  },
-  modalContent: {
-    backgroundColor: '#FFF',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 36,
-    maxHeight: height * 0.75,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#FF6B9D',
-    marginBottom: 24,
     textAlign: 'center',
   },
-  modalLabel: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#333',
-    marginBottom: 12,
-  },
-  typeSelector: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 24,
-  },
-  typeButton: {
-    flex: 1,
-    paddingVertical: 14,
-    marginHorizontal: 8,
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: '#DDD',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  typeButtonActive: {
-    borderColor: '#FF6B9D',
-  },
-  typeButtonActiveBg: {
-    backgroundColor: '#FFE8F0',
-  },
-  typeButtonText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#999',
-  },
-  typeButtonTextActive: {
-    color: '#FF6B9D',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 24,
-    paddingHorizontal: 20,
-    paddingVertical: 14,
-    marginBottom: 24,
-    fontSize: 16,
-    color: '#333',
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  modalButton: {
-    flex: 1,
-    borderRadius: 24,
-    overflow: 'hidden',
-  },
-  cancelButton: {
-    borderWidth: 1,
-    borderColor: '#DDD',
-    marginRight: 12,
-  },
-  cancelButtonText: {
-    paddingVertical: 14,
+  babyBirthdate: {
+    fontSize: 15,
+    color: COLORS.surface,
+    marginBottom: 4,
     textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#999',
+    opacity: 0.9,
   },
-  saveButton: {
-    elevation: 6,
-  },
-  saveButtonGradient: {
-    paddingVertical: 14,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#FFF',
-  },
-
-  categoryScroll: {
-    marginVertical: 12,
-  },
-  categoryContent: {
-    paddingHorizontal: 12,
-    gap: 10,
-  },
-  categoryButton: {
-    borderRadius: 14,
-    overflow: 'hidden',
-  },
-  categoryButtonGradient: {
-    paddingHorizontal: 18,
-    paddingVertical: 11,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  categoryButtonText: {
+  babyBlessing: {
     fontSize: 13,
-    fontWeight: '700',
-    color: '#555',
+    color: COLORS.surface,
+    fontWeight: '600',
+    textAlign: 'center',
   },
-  categoryButtonTextActive: {
-    color: '#FFFFFF',
-  },
-
-  vaccineGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    paddingVertical: 12,
-  },
-
   pregnancyHeader: {
-    padding: 28,
-    borderRadius: 24,
-    marginVertical: 16,
-    alignItems: 'center',
-    shadowColor: '#FF6B9D',
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.2,
-    shadowRadius: 12,
-    elevation: 5,
+    height: 280,
+    width: '100%',
+    justifyContent: 'flex-end',
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+    overflow: 'hidden',
   },
   pregnancyHeaderContent: {
+    padding: 25,
     alignItems: 'center',
-    gap: 12,
+    paddingBottom: 35,
   },
-  pregnancyHeaderEmoji: {
-    fontSize: 48,
-  },
+  pregnancyHeaderEmoji: {fontSize: 56, marginBottom: 12},
   pregnancyHeaderTitle: {
     fontSize: 24,
-    fontWeight: '900',
-    color: '#FFFFFF',
+    fontWeight: '800',
+    color: COLORS.surface,
     marginBottom: 12,
   },
-  pregnancyWeek: {
-    fontSize: 42,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    marginBottom: 6,
-  },
+  pregnancyWeek: {fontSize: 20, fontWeight: '800', color: COLORS.surface},
   pregnancyDays: {
     fontSize: 14,
-    color: '#FFFFFF',
-    opacity: 0.95,
+    color: COLORS.surface,
+    marginTop: 4,
+    opacity: 0.9,
   },
-
-  progressSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-    gap: 16,
-  },
+  progressSection: {paddingHorizontal: 16, paddingVertical: 20},
   progressInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 12,
   },
-  progressLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  progressPercent: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#00CED1',
-  },
+  progressLabel: {fontSize: 15, fontWeight: '700', color: COLORS.text},
+  progressPercent: {fontSize: 18, fontWeight: '800', color: COLORS.primary},
   progressBarContainer: {
-    height: 16,
-    backgroundColor: '#E8E8E8',
-    borderRadius: 12,
+    height: 10,
+    backgroundColor: COLORS.border,
+    borderRadius: 5,
     overflow: 'hidden',
-    marginBottom: 12,
-    elevation: 3,
   },
-  progressBar: {
-    height: '100%',
-    borderRadius: 12,
-  },
-
-  checkupsSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
-    gap: 12,
-  },
+  progressBar: {height: '100%', borderRadius: 5},
+  checkupsSection: {paddingHorizontal: 16, paddingVertical: 16},
   checkupCard: {
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  checkupLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    flex: 1,
-  },
-  checkupWeek: {
-    width: 52,
-    height: 52,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#FFD93D',
-    shadowColor: '#FFD93D',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  checkupWeekCompleted: {
-    backgroundColor: '#4CAF50',
-  },
-  checkupWeekUpcoming: {
-    backgroundColor: '#FFD93D',
-  },
-  checkupWeekText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  checkupInfo: {
-    gap: 6,
-  },
-  checkupType: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  checkupDate: {
-    fontSize: 12,
-    color: '#777',
-    fontWeight: '500',
-  },
-  checkupStatus: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkupStatusCompleted: {
-    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-  },
-  checkupStatusUpcoming: {
-    backgroundColor: 'rgba(255, 217, 61, 0.2)',
-  },
-  checkupStatusText: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  checkupStatusTextCompleted: {
-    color: '#4CAF50',
-  },
-  checkupCard: {
-    backgroundColor: '#FFF',
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderLeftWidth: 6,
-    borderLeftColor: '#FFD93D',
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 2,
   },
-  checkupCardCompleted: {
-    borderLeftColor: '#4ECDC4',
-    backgroundColor: '#F0FFFE',
-  },
-  checkupLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
+  checkupLeft: {flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12},
   checkupWeek: {
-    backgroundColor: '#FFE8F0',
-    borderRadius: 14,
-    width: 50,
-    height: 50,
-    justifyContent: 'center',
+    width: 44,
+    height: 44,
+    borderRadius: 12,
     alignItems: 'center',
-    marginRight: 16,
-  },
-  checkupWeekText: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#FF6B9D',
-  },
-  checkupInfo: {
-    flex: 1,
-  },
-  checkupType: {
-    fontSize: 16,
-    fontWeight: '900',
-    color: '#333',
-  },
-  checkupDate: {
-    fontSize: 12,
-    color: '#999',
-    marginTop: 4,
-  },
-  checkupStatus: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#FFF8E1',
     justifyContent: 'center',
-    alignItems: 'center',
   },
-  checkupStatusCompleted: {
-    backgroundColor: '#E8F5E9',
-  },
-  checkupStatusUpcoming: {
-    backgroundColor: '#FFF8E1',
-  },
-  checkupStatusText: {
-    fontSize: 20,
-    fontWeight: '900',
-    color: '#FFD93D',
-  },
-  checkupStatusTextCompleted: {
-    color: '#4ECDC4',
-  },
-
-  tipsSection: {
-    paddingHorizontal: 16,
-    paddingVertical: 24,
-  },
+  checkupWeekText: {fontSize: 14, fontWeight: '800', color: COLORS.surface},
+  checkupInfo: {flex: 1},
+  checkupType: {fontSize: 15, fontWeight: '700', color: COLORS.text},
+  checkupDate: {fontSize: 12, color: COLORS.textSecondary, marginTop: 2},
+  checkupStatus: {alignItems: 'center', justifyContent: 'center'},
+  checkupStatusText: {fontSize: 18},
+  tipsSection: {paddingHorizontal: 16, paddingVertical: 16},
   tipsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    gap: 12,
     justifyContent: 'space-between',
   },
   tipCard: {
     width: '48%',
-    borderRadius: 20,
-    padding: 18,
-    marginBottom: 14,
+    borderRadius: 18,
+    padding: 16,
     alignItems: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
+    elevation: 1,
   },
-  tipEmoji: {
-    fontSize: 36,
-    marginBottom: 10,
-  },
+  tipEmoji: {fontSize: 36, marginBottom: 10},
   tipTitle: {
     fontSize: 14,
-    fontWeight: '900',
-    color: '#333',
+    fontWeight: '800',
+    color: COLORS.text,
     marginBottom: 6,
-    textAlign: 'center',
   },
   tipDesc: {
-    fontSize: 12,
-    color: '#666',
+    fontSize: 11,
+    color: COLORS.textSecondary,
     textAlign: 'center',
-    lineHeight: 16,
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 30,
-    left: 0,
-    right: 0,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  playMusicButton: {
-    borderRadius: 30,
-    shadowColor: '#FF6B8B',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  musicButtonGradient: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.8)',
-  },
-  playMusicText: {
-    color: '#FFF',
-    fontSize: 24,
-  },
-  blessButton: {
-    borderRadius: 25,
-    overflow: 'hidden',
-  },
-  gradientButton: {
-    paddingHorizontal: 25,
-    paddingVertical: 12,
-    borderRadius: 25,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: '600',
-    textAlign: 'center',
+    lineHeight: 15,
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)', // 🔥 soft dim background
+    backgroundColor: 'rgba(0,0,0,0.7)',
     justifyContent: 'center',
     alignItems: 'center',
   },
-
-  modalContainer: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    padding: 20,
+  blessingModalContainer: {
+    borderRadius: 30,
+    paddingVertical: 40,
+    paddingHorizontal: 30,
     alignItems: 'center',
-    width: '80%',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 5},
-    shadowOpacity: 0.3,
-    shadowRadius: 10,
-    elevation: 10,
+    width: '85%',
+    overflow: 'hidden',
   },
-
-  babyImage: {
+  modalDecorativeCircle: {
+    position: 'absolute',
+    top: -50,
     width: 150,
     height: 150,
     borderRadius: 75,
-    borderWidth: 3,
-    borderColor: '#FFB6C1',
-    marginBottom: 15,
+    backgroundColor: COLORS.primaryBg,
+    opacity: 0.5,
   },
-
   modalText: {
-    fontSize: 18,
-    color: '#444',
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.text,
     textAlign: 'center',
-    marginBottom: 20,
-    fontWeight: '600',
-    lineHeight: 26,
+    marginBottom: 30,
+    lineHeight: 28,
   },
-
   blessedButton: {
-    borderRadius: 25,
+    width: '100%',
     overflow: 'hidden',
+    borderRadius: 18,
+    elevation: 5,
   },
   gradientBlessed: {
-    paddingVertical: 10,
-    paddingHorizontal: 40,
-    borderRadius: 30,
+    paddingVertical: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   blessedText: {
-    color: 'white',
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '900',
+    color: COLORS.surface,
+    letterSpacing: 1,
   },
-
-  blessingModalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  blessingModalContent: {
-    width: '85%',
-    borderRadius: 28,
-    padding: 32,
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 10},
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  blessingTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  blessingText: {
-    fontSize: 15,
-    color: 'rgba(255, 255, 255, 0.95)',
-    marginBottom: 28,
-    textAlign: 'center',
-    fontWeight: '500',
-    lineHeight: 22,
-  },
-  blessingButton: {
-    width: '100%',
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  blessingButtonGradient: {
-    paddingVertical: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  blessingButtonText: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#FF6B9D',
-  },
-
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#FFF',
-  },
-
-  vaccineEmoji: {
-    fontSize: 28,
-  },
-  vaccineInfo: {
-    flex: 1,
-  },
-  vaccineName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#1A1A1A',
-  },
-  vaccineCategory: {
-    fontSize: 12,
-    color: '#888',
-    fontWeight: '500',
-    marginTop: 4,
-  },
-  vaccineDesc: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 12,
-    fontWeight: '500',
-  },
-  vaccineStatus: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0,0,0,0.08)',
-  },
-  vaccineStatusBadge: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: '#4CAF50',
-  },
-  givenDate: {
-    fontSize: 11,
-    color: '#888',
-    fontWeight: '500',
-  },
-  filterContainer: {
-    marginBottom: 20,
-    paddingHorizontal: 20,
-  },
+  filterContainer: {paddingHorizontal: 16, paddingVertical: 15},
   filterButton: {
-    marginRight: 8,
     paddingHorizontal: 18,
     paddingVertical: 10,
-    borderRadius: 24,
-    backgroundColor: '#FFF',
-    borderWidth: 2,
-    borderColor: '#FF6B9D',
-    elevation: 3,
-  },
-  filterButtonActive: {
-    backgroundColor: '#FF6B9D',
+    borderRadius: 20,
+    marginRight: 10,
+    backgroundColor: COLORS.surface,
+    borderWidth: 1,
+    borderColor: '#EEE',
   },
   filterButtonText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '700',
-    color: '#FF6B9D',
+    color: COLORS.textSecondary,
   },
-  filterButtonTextActive: {
-    color: '#FFF',
+  filterButtonTextActive: {color: COLORS.surface},
+  vaccineList: {paddingHorizontal: 16, paddingBottom: 100},
+  vaccineCard: {
+    borderLeftWidth: 6,
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 15,
+    elevation: 3,
   },
+  vaccineCardContent: {flexDirection: 'row', alignItems: 'center', gap: 12},
+  vaccineIcon: {fontSize: 32},
+  vaccineDetails: {flex: 1},
+  vaccineName: {fontSize: 15, fontWeight: '800', color: COLORS.text},
+  vaccineCategory: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    marginTop: 2,
+    fontWeight: '600',
+  },
+  vaccineGivenDate: {fontSize: 11, color: COLORS.textSecondary, marginTop: 4},
+  statusBadge: {paddingHorizontal: 10, paddingVertical: 6, borderRadius: 12},
+  statusBadgeText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: COLORS.surface,
+    textTransform: 'uppercase',
+  },
+  tabNavigation: {
+    flexDirection: 'row',
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    elevation: 20,
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: 85,
+    paddingBottom: 10,
+    paddingHorizontal: 10,
+  },
+  tabButton: {flex: 1, justifyContent: 'center', alignItems: 'center'},
+  tabButtonGradient: {
+    flex: 1,
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+    marginHorizontal: 4,
+    marginVertical: 8,
+  },
+  tabButtonEmoji: {fontSize: 24, marginBottom: 4},
+  tabButtonText: {fontSize: 10, fontWeight: '800', color: COLORS.textSecondary},
+  tabButtonTextActive: {color: COLORS.surface, fontSize: 11},
+  footer: {
+    position: 'absolute',
+    alignItems: 'center',
+    width: '100%',
+    zIndex: 10,
+  },
+  playMusicButton: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
+    elevation: 10,
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+  },
+  musicButtonGradient: {
+    width: '100%',
+    height: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  playMusicText: {fontSize: 30},
 });

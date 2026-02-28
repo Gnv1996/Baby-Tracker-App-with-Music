@@ -6,10 +6,10 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  Animated,
   Dimensions,
   TouchableOpacity,
   useColorScheme,
+  StatusBar,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -34,7 +34,6 @@ const BABY_MILESTONES = [
     description:
       'Baby starts holding the head steady and turns the head left and right to look at sounds and faces',
   },
-
   {
     month: 4,
     milestone: 'Rolling over',
@@ -81,103 +80,113 @@ export default function BabyMilestonesScreen() {
 
   const isDark = colorScheme === 'dark';
   const bgColor = isDark ? '#0F172A' : '#F8FAFC';
-  const cardBgLight = isDark ? '#1E293B' : '#FFFFFF';
-  const textPrimary = isDark ? '#F1F5F9' : '#0F172A';
-  const textSecondary = isDark ? '#CBD5E1' : '#64748B';
+  const textPrimary = isDark ? '#F1F5F9' : '#1E293B';
+  const textSecondary = isDark ? '#94A3B8' : '#64748B';
+  const lineColor = isDark ? '#334155' : '#E2E8F0';
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: bgColor}]}>
+      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+      
+      {/* Premium Header */}
       <View style={styles.header}>
-        <Text style={[styles.headerEmoji]}>👶</Text>
+        <View style={styles.headerIconBg}>
+           <Text style={styles.headerEmoji}>👶</Text>
+        </View>
         <Text style={[styles.title, {color: textPrimary}]}>
           Milestone Journey
         </Text>
         <Text style={[styles.subtitle, {color: textSecondary}]}>
-          Watch your baby grow
+          A guide to your baby's growth
         </Text>
       </View>
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={{paddingBottom: 40}}
+        contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.timelineContainer}>
-          {BABY_MILESTONES.map((item, index) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() =>
-                setExpandedIndex(expandedIndex === index ? null : index)
-              }
-              activeOpacity={0.7}>
-              <View style={styles.milestoneRow}>
-                {/* Timeline Dot & Line */}
-                <View style={styles.dotContainer}>
+        
+        <View style={styles.timelineWrapper}>
+          {BABY_MILESTONES.map((item, index) => {
+            const isExpanded = expandedIndex === index;
+            const isLast = index === BABY_MILESTONES.length - 1;
+
+            return (
+              <View key={index} style={styles.milestoneRow}>
+                
+                {/* Timeline Visual System */}
+                <View style={styles.timelineLeftColumn}>
                   <LinearGradient
                     colors={['#EC4899', '#F43F5E']}
-                    start={{x: 0, y: 0}}
-                    end={{x: 1, y: 1}}
-                    style={styles.dot}>
-                    <Text style={styles.dotText}>{index + 1}</Text>
+                    style={styles.outerDot}>
+                    <View style={styles.innerDot}>
+                        <Text style={styles.dotText}>{index + 1}</Text>
+                    </View>
                   </LinearGradient>
-                  {index !== BABY_MILESTONES.length - 1 && (
-                    <View
-                      style={[
-                        styles.line,
-                        {backgroundColor: isDark ? '#475569' : '#E2E8F0'},
-                      ]}
-                    />
-                  )}
+                  {!isLast && <View style={[styles.line, {backgroundColor: lineColor}]} />}
                 </View>
 
-                {/* Milestone Card */}
-                <LinearGradient
-                  colors={
-                    index % 2 === 0
-                      ? ['#FFE8F0', '#FCE7F3']
-                      : ['#FEF3C7', '#FEF08A']
-                  }
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}
-                  style={[
-                    styles.milestoneCard,
-                    {marginBottom: expandedIndex === index ? 16 : 0},
-                  ]}>
-                  <View style={styles.cardHeader}>
-                    <Text style={styles.emojiLarge}>{item.emoji}</Text>
-                    <View style={styles.cardTitleContainer}>
-                      <Text style={[styles.milestoneMonth, {color: '#991B1B'}]}>
-                        {item.month} {item.month === 1 ? 'month' : 'months'}
-                      </Text>
-                      <Text
-                        style={[styles.milestoneTitle, {color: textPrimary}]}>
-                        {item.milestone}
-                      </Text>
+                {/* Interactive Milestone Card */}
+                <TouchableOpacity
+                  onPress={() => setExpandedIndex(isExpanded ? null : index)}
+                  activeOpacity={0.9}
+                  style={styles.cardTouchArea}>
+                  
+                  <LinearGradient
+                    colors={
+                      index % 2 === 0
+                        ? (isDark ? ['#312E81', '#1E1B4B'] : ['#FFF1F2', '#FFE4E6'])
+                        : (isDark ? ['#1E3A8A', '#172554'] : ['#F0F9FF', '#E0F2FE'])
+                    }
+                    style={[
+                      styles.milestoneCard,
+                      isExpanded && styles.expandedCardShadow,
+                      { borderColor: index % 2 === 0 ? '#FDA4AF' : '#7DD3FC' }
+                    ]}>
+                    
+                    <View style={styles.cardMainContent}>
+                      <View style={[styles.emojiBubble, {backgroundColor: index % 2 === 0 ? '#FFE4E6' : '#E0F2FE'}]}>
+                        <Text style={styles.emojiText}>{item.emoji}</Text>
+                      </View>
+                      
+                      <View style={styles.cardTextContainer}>
+                        <View style={[styles.monthBadge, {backgroundColor: index % 2 === 0 ? '#F43F5E' : '#0EA5E9'}]}>
+                           <Text style={styles.monthBadgeText}>
+                              {item.month} {item.month === 1 ? 'MONTH' : 'MONTHS'}
+                           </Text>
+                        </View>
+                        <Text style={[styles.milestoneTitle, {color: textPrimary}]}>
+                          {item.milestone}
+                        </Text>
+                      </View>
                     </View>
-                  </View>
 
-                  {expandedIndex === index && (
-                    <View style={styles.expandedContent}>
-                      <Text
-                        style={[
-                          styles.milestoneDescription,
-                          {color: textSecondary},
-                        ]}>
-                        {item.description}
-                      </Text>
-                    </View>
-                  )}
-                </LinearGradient>
+                    {isExpanded && (
+                      <View style={styles.expandableArea}>
+                        <View style={[styles.divider, {backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'}]} />
+                        <Text style={[styles.descriptionText, {color: textSecondary}]}>
+                          {item.description}
+                        </Text>
+                      </View>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+
               </View>
-            </TouchableOpacity>
-          ))}
+            );
+          })}
         </View>
 
-        <View style={styles.footer}>
+        {/* Informational Footer */}
+        <LinearGradient
+          colors={isDark ? ['#1E293B', '#0F172A'] : ['#FDF2F8', '#FCE7F3']}
+          style={styles.footer}>
+          <Text style={styles.footerIcon}>💡</Text>
           <Text style={[styles.footerText, {color: textSecondary}]}>
-            Every baby develops at their own pace. These are typical milestones
-            for reference.
+            Every baby develops at their own pace. These milestones are 
+            general guidelines based on pediatric standards.
           </Text>
-        </View>
+        </LinearGradient>
       </ScrollView>
     </SafeAreaView>
   );
@@ -188,121 +197,172 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    paddingTop: 10,
+    paddingBottom: 25,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(226, 232, 240, 0.5)',
+    backgroundColor: 'transparent',
+  },
+  headerIconBg: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#FFF1F2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+    elevation: 4,
+    shadowColor: '#F43F5E',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
   },
   headerEmoji: {
-    fontSize: 48,
-    marginBottom: 12,
+    fontSize: 40,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '800',
-    marginBottom: 8,
+    fontSize: 28,
+    fontWeight: '900',
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: '500',
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 4,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   scrollView: {
-    paddingHorizontal: 16,
-    paddingTop: 24,
+    flex: 1,
   },
-  timelineContainer: {
-    gap: 12,
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 10,
+    paddingBottom: 50,
+  },
+  timelineWrapper: {
+    marginTop: 10,
   },
   milestoneRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    marginBottom: 15,
   },
-  dotContainer: {
-    width: 60,
+  timelineLeftColumn: {
+    width: 50,
     alignItems: 'center',
-    paddingRight: 12,
   },
-  dot: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+  outerDot: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    padding: 3,
+    elevation: 5,
+    shadowColor: '#EC4899',
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+  },
+  innerDot: {
+    flex: 1,
+    borderRadius: 15,
+    backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 4,
-    shadowColor: '#EC4899',
-    shadowOffset: {width: 0, height: 6},
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 8,
   },
   dotText: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '800',
+    color: '#F43F5E',
   },
   line: {
     width: 3,
     flex: 1,
-    marginTop: 4,
+    marginVertical: 5,
+    borderRadius: 1.5,
+  },
+  cardTouchArea: {
+    flex: 1,
+    marginLeft: 10,
   },
   milestoneCard: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 24,
     padding: 16,
-    marginLeft: 8,
+    borderWidth: 1.5,
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 4,
+    shadowOpacity: 0.03,
+    shadowRadius: 10,
   },
-  cardHeader: {
+  expandedCardShadow: {
+    elevation: 8,
+    shadowOpacity: 0.1,
+    shadowRadius: 15,
+    transform: [{ scale: 1.02 }],
+  },
+  cardMainContent: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 12,
+    alignItems: 'center',
   },
-  emojiLarge: {
-    fontSize: 36,
-    marginTop: 2,
+  emojiBubble: {
+    width: 54,
+    height: 54,
+    borderRadius: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
-  cardTitleContainer: {
+  emojiText: {
+    fontSize: 28,
+  },
+  cardTextContainer: {
     flex: 1,
-    gap: 4,
+    marginLeft: 15,
   },
-  milestoneMonth: {
-    fontSize: 13,
-    fontWeight: '700',
-    textTransform: 'uppercase',
+  monthBadge: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 8,
+    marginBottom: 6,
+  },
+  monthBadgeText: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#FFF',
     letterSpacing: 0.5,
   },
   milestoneTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 4,
+    fontSize: 17,
+    fontWeight: '800',
   },
-  expandedContent: {
-    marginTop: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  expandableArea: {
+    marginTop: 15,
   },
-  milestoneDescription: {
+  divider: {
+    height: 1,
+    width: '100%',
+    marginBottom: 12,
+  },
+  descriptionText: {
     fontSize: 14,
-    lineHeight: 20,
+    lineHeight: 22,
     fontWeight: '500',
   },
   footer: {
-    marginTop: 32,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    backgroundColor: 'rgba(236, 72, 153, 0.1)',
-    borderRadius: 12,
-    marginBottom: 16,
+    marginTop: 40,
+    padding: 24,
+    borderRadius: 30,
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  footerIcon: {
+    fontSize: 24,
+    marginRight: 15,
   },
   footerText: {
+    flex: 1,
     fontSize: 13,
-    lineHeight: 18,
-    textAlign: 'center',
-    fontWeight: '500',
+    lineHeight: 20,
+    fontWeight: '600',
+    fontStyle: 'italic',
   },
 });

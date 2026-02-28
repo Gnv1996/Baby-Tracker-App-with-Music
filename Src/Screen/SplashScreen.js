@@ -7,58 +7,36 @@ import {
   Easing,
   Image,
   Dimensions,
-  Platform,StatusBar
+  Platform,
+  StatusBar
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { BlurView } from '@react-native-community/blur';
-
-
 
 const { width, height } = Dimensions.get('window');
 
-const FloatingElement = ({ delay, duration, size, top, left, right }) => {
-  const position = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
-  const opacity = useRef(new Animated.Value(0)).current;
+/**
+ * REFINED BOKEH ORBS 
+ * Simulates high-end camera bokeh with soft-focus movement
+ */
+const BokehOrb = ({ delay, duration, size, top, left, right, color = '#FFF' }) => {
+  const moveAnim = useRef(new Animated.ValueXY({ x: 0, y: 0 })).current;
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     Animated.sequence([
-      Animated.timing(opacity, {
-        toValue: 0.8,
-        duration: 800,
-        delay,
-        useNativeDriver: true,
-      }),
+      Animated.delay(delay),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
       Animated.parallel([
         Animated.loop(
           Animated.sequence([
-            Animated.timing(position.y, {
-              toValue: 15,
-              duration: duration,
-              easing: Easing.inOut(Easing.sin),
-              useNativeDriver: true,
-            }),
-            Animated.timing(position.y, {
-              toValue: -15,
-              duration: duration,
-              easing: Easing.inOut(Easing.sin),
-              useNativeDriver: true,
-            }),
+            Animated.timing(moveAnim.y, { toValue: -40, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+            Animated.timing(moveAnim.y, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
           ])
         ),
         Animated.loop(
           Animated.sequence([
-            Animated.timing(position.x, {
-              toValue: 10,
-              duration: duration * 1.3,
-              easing: Easing.inOut(Easing.sin),
-              useNativeDriver: true,
-            }),
-            Animated.timing(position.x, {
-              toValue: -10,
-              duration: duration * 1.3,
-              easing: Easing.inOut(Easing.sin),
-              useNativeDriver: true,
-            }),
+            Animated.timing(moveAnim.x, { toValue: 20, duration: duration * 1.2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+            Animated.timing(moveAnim.x, { toValue: 0, duration: duration * 1.2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
           ])
         ),
       ]),
@@ -69,306 +47,184 @@ const FloatingElement = ({ delay, duration, size, top, left, right }) => {
     <Animated.View
       style={{
         position: 'absolute',
-        top,
-        left,
-        right,
-        opacity,
-        transform: [
-          { translateX: position.x },
-          { translateY: position.y },
-        ],
+        top, left, right,
+        opacity: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 0.35] }),
+        transform: [{ translateX: moveAnim.x }, { translateY: moveAnim.y }],
       }}
     >
-      <View
-        style={{
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: 'white',
-          shadowColor: '#FFC0CB',
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.8,
-          shadowRadius: 10,
-          elevation: 5,
-        }}
-      />
+      <View style={[styles.orbBase, { width: size, height: size, borderRadius: size / 2, backgroundColor: color }]} />
     </Animated.View>
   );
 };
 
 const SplashScreen = ({ navigation }) => {
+  // Animation Refs
+  const logoScale = useRef(new Animated.Value(0.5)).current;
   const logoOpacity = useRef(new Animated.Value(0)).current;
-  const logoScale = useRef(new Animated.Value(0.3)).current;
   const textOpacity = useRef(new Animated.Value(0)).current;
-  const textPosition = useRef(new Animated.Value(20)).current;
-  const subtitlePosition = useRef(new Animated.Value(20)).current;
-  const glowOpacity = useRef(new Animated.Value(0)).current;
-  const glowScale = useRef(new Animated.Value(0.8)).current;
-  const backgroundOpacity = useRef(new Animated.Value(0)).current;
+  const textTranslateY = useRef(new Animated.Value(40)).current;
+  const auraScale = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.timing(backgroundOpacity, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
+    // 1. Aura Pulsing
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(auraScale, { toValue: 1.15, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+        Animated.timing(auraScale, { toValue: 1, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
+      ])
+    ).start();
 
-    Animated.sequence([
-      Animated.parallel([
-        Animated.timing(logoOpacity, {
-          toValue: 1,
-          duration: 1200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(logoScale, {
-          toValue: 1,
-          duration: 1500,
-          easing: Easing.elastic(1.2),
-          useNativeDriver: true,
-        }),
-        Animated.sequence([
-          Animated.delay(600),
-          Animated.timing(glowOpacity, {
-            toValue: 0.8,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.loop(
-            Animated.sequence([
-              Animated.timing(glowScale, {
-                toValue: 1.2,
-                duration: 2000,
-                easing: Easing.inOut(Easing.sin),
-                useNativeDriver: true,
-              }),
-              Animated.timing(glowScale, {
-                toValue: 0.9,
-                duration: 2000,
-                easing: Easing.inOut(Easing.sin),
-                useNativeDriver: true,
-              }),
-            ])
-          ),
-        ]),
-      ]),
-      Animated.parallel([
-        Animated.timing(textOpacity, {
-          toValue: 1,
-          duration: 800,
-          useNativeDriver: true,
-        }),
-        Animated.timing(textPosition, {
-          toValue: 0,
-          duration: 800,
-          easing: Easing.out(Easing.back(1.7)),
-          useNativeDriver: true,
-        }),
-      ]),
-      Animated.parallel([
-        Animated.timing(subtitlePosition, {
-          toValue: 0,
-          duration: 800,
-          easing: Easing.out(Easing.back(1.7)),
-          useNativeDriver: true,
-        }),
-      ]),
+    // 2. Entrance Sequence
+    Animated.parallel([
+      Animated.timing(logoOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
+      Animated.spring(logoScale, { toValue: 1, friction: 6, tension: 40, useNativeDriver: true }),
     ]).start();
+
+    // 3. Staggered Text Reveal
+    Animated.delay(1000).start(() => {
+      Animated.parallel([
+        Animated.timing(textOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
+        Animated.timing(textTranslateY, { toValue: 0, duration: 1200, easing: Easing.out(Easing.back(1.5)), useNativeDriver: true }),
+      ]).start();
+    });
 
     const timer = setTimeout(() => {
       navigation.replace('MyBaby');
-    }, 4000);
+    }, 5000);
 
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <View style={styles.container}>
-      <StatusBar
-    backgroundColor="#FF6B8B"  // Darker pink/red background
-        barStyle="light-content"    // Light icons & text for status bar
-        translucent={false}         // Non-translucent for better visibility
-      />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
       
-      <Animated.View style={[styles.backgroundContainer, { opacity: backgroundOpacity }]}>
-        <LinearGradient
-          colors={['#FFF5F7', '#FFE0EB', '#FFD6F3', '#E6F0FF']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.gradient}
-        />
-      </Animated.View>
-
-      <FloatingElement delay={1500} duration={3000} size={15} top={height * 0.2} left={width * 0.2} />
-      <FloatingElement delay={1700} duration={4000} size={10} top={height * 0.3} right={width * 0.25} />
-      <FloatingElement delay={1900} duration={3500} size={12} top={height * 0.6} left={width * 0.15} />
-      <FloatingElement delay={2100} duration={3200} size={8} top={height * 0.7} right={width * 0.2} />
-      <FloatingElement delay={2300} duration={3800} size={14} top={height * 0.4} left={width * 0.7} />
-
-      <Animated.View
-        style={[
-          styles.glow,
-          {
-            opacity: glowOpacity,
-            transform: [{ scale: glowScale }],
-          },
-        ]}
+      {/* Soft Multi-Tone Gradient */}
+      <LinearGradient
+        colors={['#FFFBFC', '#FFF0F5', '#F5FAFF']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
       />
 
-      <Animated.View
-        style={[
-          styles.logoContainer,
-          {
-            opacity: logoOpacity,
-            transform: [{ scale: logoScale }],
-          },
-        ]}
-      >
-        <Image
-          source={require('../Assest/borns.jpeg')}
-          style={styles.logo}
-          resizeMode="cover"
-        />
-        {Platform.OS === 'ios' && (
-          <BlurView
-            style={styles.logoBlur}
-            blurType="light"
-            blurAmount={20}
-          />
-        )}
-      </Animated.View>
+      {/* Atmospheric Bokeh Orbs */}
+      <BokehOrb size={180} top={-50} left={-30} color="#FFD1DC" delay={0} duration={4000} />
+      <BokehOrb size={100} top={height * 0.75} right={-20} color="#81D4FA" delay={500} duration={5500} />
+      <BokehOrb size={60} top={height * 0.4} left={width * 0.05} color="#FCE4EC" delay={1200} duration={3000} />
 
-      <Animated.Text
-        style={[
-          styles.title,
-          {
-            opacity: textOpacity,
-            transform: [{ translateY: textPosition }],
-          },
-        ]}
-      >
-        Journey
-      </Animated.Text>
+      <View style={styles.contentContainer}>
+        
+        {/* Triple Halo Glow System */}
+        <Animated.View style={[styles.haloContainer, { transform: [{ scale: auraScale }] }]}>
+          <View style={styles.auraOuter} />
+          <View style={styles.auraMiddle} />
+        </Animated.View>
 
-      <Animated.View
-        style={[
-          styles.subtitleContainer,
-          {
-            opacity: textOpacity,
-            transform: [{ translateY: subtitlePosition }],
-          },
-        ]}
-      >
-        {/* <Text style={styles.subtitle}>
-          Nici ka Baby Coming Soon...
-        </Text> */}
-        <View style={styles.heartContainer}>
-          <View style={styles.heart} />
-          <View style={[styles.heart, styles.leftHeart]} />
-          <View style={[styles.heart, styles.rightHeart]} />
+        {/* Logo Container */}
+        <Animated.View style={[styles.imageFrame, { opacity: logoOpacity, transform: [{ scale: logoScale }] }]}>
+          <Image source={require('../Assest/borns.jpeg')} style={styles.babyLogo} />
+        </Animated.View>
+
+        {/* Typography Section */}
+        <Animated.View style={{ opacity: textOpacity, transform: [{ translateY: textTranslateY }], alignItems: 'center' }}>
+          <Text style={styles.brandTitle}>JOURNEY</Text>
+          <View style={styles.styleLine} />
+          
+          <Text style={styles.welcomeText}>Welcome, Nici’s Baby Boy! 👶</Text>
+          
+          <View style={styles.loveLineContainer}>
+            <Text style={styles.loveLineText}>— Papa & Mammy love you forever —</Text>
+          </View>
+        </Animated.View>
+
+      </View>
+
+      {/* Elegant Footer */}
+      <Animated.View style={[styles.footer, { opacity: textOpacity }]}>
+        <View style={styles.iconBox}>
+          <Text style={{ fontSize: 16 }}>💝</Text>
         </View>
+        <Text style={styles.footerNote}>CREATED WITH PURE LOVE</Text>
       </Animated.View>
-      <Text style={styles.subtitle}>
-      Welcome, Nici’s Baby Boy! 👶💫
-        </Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  backgroundContainer: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  gradient: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  logoContainer: {
-    marginBottom: 30,
-    shadowColor: '#FF6B8B',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  logo: {
-    width: 180,
-    height: 180,
-    borderRadius: 90,
-    borderWidth: 5,
-    borderColor: 'white',
-  },
-  logoBlur: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    bottom: 0,
-    right: 0,
-    borderRadius: 90,
-    overflow: 'hidden',
-    opacity: 0.3,
-  },
-  glow: {
-    position: 'absolute',
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: '#FFC0CB',
-    opacity: 0.5,
-  },
-  title: {
-    fontSize: 48,
-    fontWeight: '800',
-    color: '#FF6B8B',
-    marginBottom: 10,
-    fontFamily: Platform.OS === 'ios' ? 'AvenirNext-Bold' : 'sans-serif-condensed',
-    letterSpacing: 2,
-    textShadowColor: 'rgba(255, 107, 139, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 10,
-  },
-  subtitleContainer: {
-    position: 'absolute',
-    bottom: 50, // or adjust as needed
-    alignItems: 'center',
-    width: '100%',
-  },
+  container: { flex: 1, backgroundColor: '#FFF' },
+  orbBase: { shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10 },
+  contentContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40 },
   
-  subtitle: {
-    fontSize: 20,
-    color:'black',
-   
-    fontFamily: Platform.OS === 'ios' ? 'AvenirNext-Medium' : 'sans-serif-medium',
+  // Aura Styles
+  haloContainer: { position: 'absolute', justifyContent: 'center', alignItems: 'center' },
+  auraOuter: { width: 320, height: 320, borderRadius: 160, backgroundColor: '#FF8AAB', opacity: 0.1 },
+  auraMiddle: { position: 'absolute', width: 240, height: 240, borderRadius: 120, backgroundColor: '#FF8AAB', opacity: 0.15 },
+  
+  // Image Frame Styles
+  imageFrame: {
+    padding: 10,
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 110,
+    marginBottom: 50,
+    elevation: 20,
+    shadowColor: '#FF6B8B',
+    shadowOffset: { width: 0, height: 15 },
+    shadowOpacity: 0.2,
+    shadowRadius: 25,
+  },
+  babyLogo: { width: 170, height: 170, borderRadius: 85, borderWidth: 5, borderColor: '#FFF' },
+  
+  // Typography
+  brandTitle: {
+    fontSize: 48,
+    fontWeight: '900',
+    color: '#FF6B8B',
+    letterSpacing: 10,
+    textTransform: 'uppercase',
+    fontFamily: Platform.OS === 'ios' ? 'Avenir-Black' : 'sans-serif-condensed',
+  },
+  styleLine: { width: 50, height: 4, backgroundColor: '#FFC1CF', borderRadius: 2, marginVertical: 20 },
+  welcomeText: {
+    fontSize: 19,
+    color: '#333',
+    fontWeight: '700',
     letterSpacing: 0.5,
-    textShadowColor: 'rgba(138, 107, 190, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 5,
+    marginBottom: 10,
+    textAlign: 'center'
   },
-  heartContainer: {
-    marginTop: 15,
-    width: 30,
-    height: 30,
-    alignItems: 'center',
+  loveLineContainer: { 
+    paddingHorizontal: 20, 
+    paddingVertical: 8, 
+    borderRadius: 20, 
+    backgroundColor: 'rgba(255, 138, 171, 0.08)' 
+  },
+  loveLineText: {
+    fontSize: 14,
+    color: '#FF8AAB',
+    fontStyle: 'italic',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+  },
+
+  // Footer
+  footer: { position: 'absolute', bottom: 60, alignSelf: 'center', alignItems: 'center' },
+  iconBox: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#FFF',
     justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 5,
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    marginBottom: 10,
   },
-  heart: {
-    position: 'absolute',
-    width: 10,
-    height: 10,
-    backgroundColor: '#FF6B8B',
-    borderRadius: 5,
-  },
-  leftHeart: {
-    left: -5,
-    transform: [{ rotate: '45deg' }],
-  },
-  rightHeart: {
-    right: -5,
-    transform: [{ rotate: '-45deg' }],
+  footerNote: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#AAA',
+    letterSpacing: 4,
   },
 });
 

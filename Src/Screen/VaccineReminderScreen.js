@@ -50,12 +50,12 @@ const vaccines = [
   { name: "PCV 2", weeks: 10, emoji: "🫁", category: "10 Weeks",givenDate: "19 Jan 2026" },
 
   /* ------------------ 14 WEEKS ------------------ */
-  { name: "DTwP 3 / DTaP 3", weeks: 14, emoji: "💪", category: "14 Weeks" },
-  { name: "IPV 3", weeks: 14, emoji: "🧠", category: "14 Weeks" },
-  { name: "Hib 3", weeks: 14, emoji: "🧬", category: "14 Weeks" },
-  { name: "Hepatitis B – 4", weeks: 14, emoji: "🛡️", category: "14 Weeks" },
-  { name: "Rotavirus 3", weeks: 14, emoji: "🌀", category: "14 Weeks" },
-  { name: "PCV 3", weeks: 14, emoji: "🫁", category: "14 Weeks" },
+  { name: "DTwP 3 / DTaP 3", weeks: 14, emoji: "💪", category: "14 Weeks",givenDate: '27 Feb 2026', },
+  { name: "IPV 3", weeks: 14, emoji: "🧠", category: "14 Weeks" ,givenDate: '27 Feb 2026',},
+  { name: "Hib 3", weeks: 14, emoji: "🧬", category: "14 Weeks",givenDate: '27 Feb 2026', },
+  { name: "Hepatitis B – 4", weeks: 14, emoji: "🛡️", category: "14 Weeks",givenDate: '27 Feb 2026', },
+  { name: "Rotavirus 3", weeks: 14, emoji: "🌀", category: "14 Weeks",givenDate: '27 Feb 2026', },
+  { name: "PCV 3", weeks: 14, emoji: "🫁", category: "14 Weeks" ,givenDate: '27 Feb 2026',},
 
   /* ------------------ 6 MONTHS ------------------ */
   { name: "Influenza (IIV) – 1", weeks: 24, emoji: "🤧", category: "6 Months" },
