@@ -997,6 +997,7 @@ export default function BabyHealthApp() {
   const handleTabPress = tabId => {
     if (tabId === 'pregnancy') navigation.navigate('Home');
     else if (tabId === 'activity') navigation.navigate('Activity');
+    else if (tabId === 'feeding') navigation.navigate('Babyfood');
     else setActiveTab(tabId);
   };
 

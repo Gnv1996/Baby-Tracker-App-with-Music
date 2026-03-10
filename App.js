@@ -16,6 +16,7 @@ import VaccineReminderScreen from './Src/Screen/VaccineReminderScreen';
 import PregnancyMonthChartComponent from './Src/Screen/MonthWise';
 import VaccineTrackerScreen from './Src/Baby Birth';
 import BabyMilestonesScreen from './Src/Baby Birth/BabyActivity';
+import BabyFoodPlannerScreen from './Src/Baby Birth/BabyFoodPlannerScreen';
 
 
 export default function App() {
@@ -40,6 +41,7 @@ export default function App() {
         <Stack.Screen name="Vaccine" component={VaccineReminderScreen} />
         <Stack.Screen name="MyBaby" component={VaccineTrackerScreen} />
         <Stack.Screen name="Activity" component={BabyMilestonesScreen} />
+        <Stack.Screen name="Babyfood" component={BabyFoodPlannerScreen} />
        
       </Stack.Navigator>
     </NavigationContainer>

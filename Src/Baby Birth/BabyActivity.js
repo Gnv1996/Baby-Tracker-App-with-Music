@@ -40,6 +40,23 @@ const BABY_MILESTONES = [
     emoji: '🤸',
     description: 'Baby can roll from back to side or front',
   },
+
+  {
+    month: 6,
+    milestone: 'Sitting with support',
+    emoji: '🪑',
+    description:
+      'Baby starts sitting with support. Back and neck muscles become stronger.',
+  },
+
+  {
+    month: 7,
+    milestone: 'Sitting without support',
+    emoji: '🧸',
+    description:
+      'Baby can sit without support and play with toys while sitting.',
+  },
+
   {
     month: 6,
     milestone: 'Babbling',
@@ -48,9 +65,10 @@ const BABY_MILESTONES = [
   },
   {
     month: 9,
-    milestone: 'First words',
-    emoji: '🗨️',
-    description: "Says simple words like 'mama' or 'dada'",
+    milestone: 'Crawling',
+    emoji: '🐾',
+    description:
+      'Baby starts crawling or moving on knees to explore surroundings.',
   },
   {
     month: 12,
