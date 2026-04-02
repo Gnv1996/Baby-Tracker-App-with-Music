@@ -19,6 +19,8 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import ConfettiCannon from 'react-native-confetti-cannon';
 
 const {width, height} = Dimensions.get('window');
 
@@ -78,34 +80,87 @@ function calculatePregnancyProgress(dueDate) {
 
 function AgeCard() {
   const age = useMemo(() => calculateAge(BABY_BIRTHDATE), []);
+  const today = new Date();
+
+  
   const units = [
-    {key: 'years', label: 'Years', emoji: '🎂'},
-    {key: 'months', label: 'Months', emoji: '📅'},
-    {key: 'days', label: 'Days', emoji: '☀️'},
+    { key: 'years', label: 'Years', emoji: '🎂' }, // Birthday balloon
+    { key: 'months', label: 'Months', emoji: '🍼' }, // Feeding bottle
+    { key: 'days', label: 'Days', emoji: '✨' },   // Sparkles for every day
   ];
+  
+  // 1. Annaprasan Day Check (2 May 2026)
+  // JS months 0 से start hote hain (Jan=0, Feb=1... May=4)
+  const isAnnaprasanDay = today.getDate() === 2 && today.getMonth() === 4 && today.getFullYear() === 2026;
+  
+  // 2. Regular Monthly Birthday Check (Har mahine ki 2 tarikh)
+  const isMonthlyBirthday = today.getDate() === 2 && !isAnnaprasanDay;
 
   return (
     <View style={styles.ageCardContainer}>
+    
+        {isAnnaprasanDay ? (
+            <LinearGradient
+            // Annaprasan: Saffron-Orange | Monthly: Gold | Normal: White
+            colors={
+              isAnnaprasanDay ? ['#FF9933', '#FFCC33'] : 
+              isMonthlyBirthday ? ['#FFD700', '#F59E0B'] : 
+              [COLORS.surface, COLORS.surface]
+            }
+            style={[styles.ageCard, (isAnnaprasanDay || isMonthlyBirthday) && styles.celebrationShadow]}
+          >
+          /* --- ANNAPRASHAN SPECIAL VIEW --- */
+          <View style={styles.ceremonyContainer}>
+            <Text style={styles.annaprasanTitle}>🥣 Annaprasan Sanskar 🥣</Text>
+            <View style={styles.goldDivider} />
+            <Text style={styles.ceremonyMainText}>Dhruv's First Solid Meal!</Text>
+            <Text style={styles.ceremonySubText}>
+              "May this first morsel of food bring health, strength, and the sweetness of life to our little Prince." ✨
+            </Text>
+            
+            <View style={styles.ceremonyIconRow}>
+              <View style={styles.ceremonyItem}>
+                <Text style={styles.ceremonyEmoji}>🍚</Text>
+                <Text style={styles.ceremonyLabel}>Rice</Text>
+              </View>
+              <View style={styles.ceremonyItem}>
+                <Text style={styles.ceremonyEmoji}>🥄</Text>
+                <Text style={styles.ceremonyLabel}>First Spoon</Text>
+              </View>
+              <View style={styles.ceremonyItem}>
+                <Text style={styles.ceremonyEmoji}>🙏</Text>
+                <Text style={styles.ceremonyLabel}>Blessings</Text>
+              </View>
+            </View>
+          </View>
+              </LinearGradient>
+        ) : (
+          /* --- REGULAR AGE VIEW --- */
+          <>
+           <View style={styles.ageCardContainer}>
       <View style={styles.ageCard}>
         <View style={styles.ageCardHeaderRow}>
           <Text style={styles.ageCardTitle}>{BABY_NAME}'s Age</Text>
           <Text style={styles.ageCardPulse}>● Live</Text>
         </View>
         <View style={styles.ageGrid}>
-          {units.map(({key, label, emoji}) => {
-            const value = age[key];
-            return (
-              <View style={styles.ageItem} key={key}>
-                <Text style={styles.ageEmoji}>{emoji}</Text>
-                <View style={styles.ageValueBox}>
-                  <Text style={styles.ageValue}>{value}</Text>
-                </View>
-                <Text style={styles.ageLabel}>{label}</Text>
+          {units.map(({key, label, emoji}) => (
+            <View style={styles.ageItem} key={key}>
+              <Text style={styles.ageEmoji}>{emoji}</Text>
+              <View style={styles.ageValueBox}>
+                <Text style={styles.ageValue}>{age[key]}</Text>
               </View>
-            );
-          })}
+              <Text style={styles.ageLabel}>{label}</Text>
+            </View>
+          ))}
         </View>
       </View>
+    </View>
+            
+           
+          </>
+        )}
+  
     </View>
   );
 }
@@ -219,189 +274,7 @@ function MilkFeedingCard({feeding}) {
 
 // --- SCREENS ---
 
-function MilkTrackerScreen() {
-  const [feedings, setFeedings] = useState([
-    {
-      id: 1,
-      time: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      type: 'breast',
-      duration: 15,
-    },
-    {
-      id: 2,
-      time: new Date(Date.now() - 6 * 60 * 60 * 1000),
-      type: 'formula',
-      duration: 8,
-      volume: 100,
-    },
-    {
-      id: 3,
-      time: new Date(Date.now() - 12 * 60 * 60 * 1000),
-      type: 'breast',
-      duration: 18,
-    },
-  ]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedType, setSelectedType] = useState('breast');
-  const [duration, setDuration] = useState('');
-  const [volume, setVolume] = useState('');
 
-  const addFeeding = () => {
-    if (!duration || (selectedType === 'formula' && !volume)) return;
-    const newFeed = {
-      id: feedings.length + 1,
-      time: new Date(),
-      type: selectedType,
-      duration: Number(duration),
-      volume: selectedType === 'formula' ? Number(volume) : null,
-    };
-    setFeedings([newFeed, ...feedings]);
-    setDuration('');
-    setVolume('');
-    setModalVisible(false);
-  };
-
-  const todayFeedings = feedings.filter(f => {
-    const today = new Date();
-    return (
-      f.time.getDate() === today.getDate() &&
-      f.time.getMonth() === today.getMonth() &&
-      f.time.getFullYear() === today.getFullYear()
-    );
-  });
-
-  const totalDuration = todayFeedings.reduce((sum, f) => sum + f.duration, 0);
-  const totalVolume = todayFeedings
-    .filter(f => f.type === 'formula')
-    .reduce((sum, f) => sum + (f.volume || 0), 0);
-
-  return (
-    <View style={styles.screenContainer}>
-      <View style={styles.headerSection}>
-        <Text style={styles.headerTitle}>Feeding Tracker</Text>
-        <Text style={styles.headerSubtitle}>Track your baby's nutrition</Text>
-      </View>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={styles.scrollView}>
-        <View style={styles.statsRow}>
-          <View
-            style={[styles.statCard, {backgroundColor: COLORS.accentLight}]}>
-            <Text style={styles.statEmoji}>🍼</Text>
-            <Text style={styles.statValue}>{todayFeedings.length}</Text>
-            <Text style={styles.statLabel}>Feedings</Text>
-          </View>
-          <View style={[styles.statCard, {backgroundColor: COLORS.primaryBg}]}>
-            <Text style={styles.statEmoji}>⏱️</Text>
-            <Text style={styles.statValue}>{totalDuration}</Text>
-            <Text style={styles.statLabel}>Minutes</Text>
-          </View>
-          <View style={[styles.statCard, {backgroundColor: '#FEF3E0'}]}>
-            <Text style={styles.statEmoji}>💧</Text>
-            <Text style={styles.statValue}>{totalVolume}</Text>
-            <Text style={styles.statLabel}>ml Formula</Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          onPress={() => setModalVisible(true)}
-          style={styles.addButton}>
-          <LinearGradient
-            colors={[COLORS.primary, COLORS.primaryLight]}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}
-            style={styles.addButtonGradient}>
-            <Text style={styles.addButtonText}>+ Record Feeding</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-
-        <View style={styles.historySection}>
-          <Text style={styles.sectionTitle}>Today's Feedings</Text>
-          {todayFeedings.length > 0 ? (
-            todayFeedings.map(feeding => (
-              <MilkFeedingCard key={feeding.id} feeding={feeding} />
-            ))
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateEmoji}>🍼</Text>
-              <Text style={styles.emptyStateText}>
-                No feedings recorded yet
-              </Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
-
-      <Modal animationType="slide" transparent={true} visible={modalVisible}>
-        <View style={styles.modalContainer}>
-          <View
-            style={[styles.modalContent, {backgroundColor: COLORS.surface}]}>
-            <View style={styles.modalDragHandle} />
-            <Text style={styles.modalTitle}>Record Feeding</Text>
-            <Text style={styles.modalLabel}>Feeding Type</Text>
-            <View style={styles.typeSelector}>
-              {['breast', 'formula'].map(type => (
-                <TouchableOpacity
-                  key={type}
-                  onPress={() => setSelectedType(type)}
-                  style={[
-                    styles.typeButton,
-                    selectedType === type && {backgroundColor: COLORS.primary},
-                  ]}>
-                  <Text
-                    style={[
-                      styles.typeButtonText,
-                      selectedType === type && styles.typeButtonTextActive,
-                    ]}>
-                    {type === 'breast' ? '🍼 Breast' : '👶 Formula'}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <Text style={styles.modalLabel}>Duration (minutes)</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter duration"
-              keyboardType="numeric"
-              value={duration}
-              onChangeText={setDuration}
-              placeholderTextColor={COLORS.textSecondary}
-            />
-            {selectedType === 'formula' && (
-              <>
-                <Text style={styles.modalLabel}>Volume (ml)</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter volume"
-                  keyboardType="numeric"
-                  value={volume}
-                  onChangeText={setVolume}
-                  placeholderTextColor={COLORS.textSecondary}
-                />
-              </>
-            )}
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                onPress={() => setModalVisible(false)}
-                style={[styles.modalButton, styles.cancelButton]}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={addFeeding}
-                style={[styles.modalButton, styles.saveButton]}>
-                <LinearGradient
-                  colors={[COLORS.primary, COLORS.primaryLight]}
-                  style={styles.saveButtonGradient}>
-                  <Text style={styles.saveButtonText}>Save</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-    </View>
-  );
-}
 
 function PregnancyTrackerScreen() {
   const pregnancyData = calculatePregnancyProgress(PREGNANCY_DUE_DATE);
@@ -566,6 +439,22 @@ function PregnancyTrackerScreen() {
 function VaccineTrackerScreen() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [modalVisible, setModalVisible] = useState(false);
+  const [blastKey, setBlastKey] = useState(0);
+
+
+
+  const today = new Date();
+  const isCelebrationDay = today.getDate() === 2;
+
+  useEffect(() => {
+    if (!isCelebrationDay) return;
+  
+    const interval = setInterval(() => {
+      setBlastKey(prev => prev + 1); // 🔥 re-render cannon
+    }, 4000); // 👉 2 second
+  
+    return () => clearInterval(interval);
+  }, [isCelebrationDay]);
 
   useEffect(() => {
     checkBlessingStatus();
@@ -850,6 +739,27 @@ function VaccineTrackerScreen() {
 
   return (
     <View style={styles.screenContainer}>
+
+{isCelebrationDay && (
+  <View style={styles.flowerRainOverlay} pointerEvents="none">
+    <ConfettiCannon
+      key={blastKey}
+      count={30}
+      origin={{ x: width / 2, y: 0 }}
+      autoStart
+      fadeOut
+      fallSpeed={4000}
+      explosionSpeed={250}
+      customElements={[
+        <Text key="1" style={{ fontSize: 30 }}>🌸</Text>,
+        <Text key="2" style={{ fontSize: 28 }}>🌹</Text>,
+        <Text key="3" style={{ fontSize: 30 }}>🌻</Text>,
+        <Text key="4" style={{ fontSize: 26 }}>🌼</Text>,
+        <Text key="5" style={{ fontSize: 28 }}>🌺</Text>,
+      ]}
+    />
+  </View>
+)}
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}>
@@ -887,29 +797,67 @@ function VaccineTrackerScreen() {
           />
         )}
 
-        <Modal transparent visible={modalVisible} animationType="fade">
-          <View style={styles.modalOverlay}>
-            <View
-              style={[
-                styles.blessingModalContainer,
-                {backgroundColor: COLORS.surface},
-              ]}>
-              <View style={styles.modalDecorativeCircle} />
-              <Text style={styles.modalText}>
-                ✨ Give your blessings to this sweet baby Boy! ✨
-              </Text>
-              <TouchableOpacity
-                onPress={handleBlessed}
-                style={styles.blessedButton}>
-                <LinearGradient
-                  colors={[COLORS.primary, COLORS.primaryLight]}
-                  style={styles.gradientBlessed}>
-                  <Text style={styles.blessedText}>🙏 Blessed 🙏</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
+<Modal transparent visible={modalVisible} animationType="slide">
+      <View style={styles.modalOverlay}>
+        <View style={[styles.cardContainer, { backgroundColor: COLORS.surface }]}>
+          
+          {/* Top Decorative Icon/Image Area */}
+          <View style={styles.iconCircle}>
+            <LinearGradient
+              colors={['#E0F2FE', '#BAE6FD']} // Soft Blue Gradients
+              style={styles.innerCircle}
+            >
+              <Icon name="baby-face-outline" size={50} color="#0284C7" />
+            </LinearGradient>
           </View>
-        </Modal>
+
+         
+<Icon 
+  name="star-four-points" 
+  size={24} 
+  color="#F59E0B" 
+  style={styles.sparkleLeft} 
+/>
+
+<Icon 
+  name="star-four-points-outline" 
+  size={20} 
+  color="#F59E0B" 
+  style={styles.sparkleRight} 
+/>
+
+          <View style={styles.content}>
+            <Text style={styles.titleText}>New Prince Arrived!</Text>
+            <Text style={styles.modalSubText}>
+              Your blessings will fill his life with joy and prosperity.
+            </Text>
+
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={handleBlessed}
+              style={styles.buttonWrapper}
+            >
+              <LinearGradient
+                colors={['#0EA5E9', '#0284C7']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.gradientButton}
+              >
+                <Text style={styles.buttonText}>Give Blessings 🙏</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+               onPress={() => {/* Close Logic */}} 
+               style={styles.closeTextBtn}
+            >
+              <Text style={styles.maybeLater}>Maybe Later</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+ 
 
         <View style={styles.filterContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -1003,7 +951,7 @@ export default function BabyHealthApp() {
 
   const tabs = [
     {id: 'vaccines', label: 'Vaccines', emoji: '💉'},
-    {id: 'feeding', label: 'Feeding', emoji: '🍼'},
+    {id: 'feeding', label: 'Food', emoji: '🍚'},
     {id: 'activity', label: 'Activity', emoji: '🤸'},
     {id: 'pregnancy', label: 'Pregnancy', emoji: '🤰'},
   ];
@@ -1091,7 +1039,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontWeight: '500',
   },
-  ageCardContainer: {marginHorizontal: 16, marginVertical: 16},
+  ageCardContainer: {marginHorizontal: 6, marginVertical: 10},
   ageCard: {
     backgroundColor: COLORS.surface,
     borderRadius: 20,
@@ -1504,41 +1452,76 @@ const styles = StyleSheet.create({
   },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(15, 23, 42, 0.7)', // Darker blurred backdrop
     justifyContent: 'center',
     alignItems: 'center',
   },
-  blessingModalContainer: {
+  cardContainer: {
+    width: width * 0.85,
     borderRadius: 30,
-    paddingVertical: 40,
-    paddingHorizontal: 30,
+    paddingBottom: 25,
     alignItems: 'center',
-    width: '85%',
-    overflow: 'hidden',
+    elevation: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
   },
-  modalDecorativeCircle: {
-    position: 'absolute',
-    top: -50,
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: COLORS.primaryBg,
-    opacity: 0.5,
-  },
-  modalText: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: COLORS.text,
-    textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 28,
-  },
-  blessedButton: {
-    width: '100%',
-    overflow: 'hidden',
-    borderRadius: 18,
+  iconCircle: {
+    marginTop: -40,
+    backgroundColor: '#FFF',
+    padding: 8,
+    borderRadius: 60,
     elevation: 5,
   },
+  innerCircle: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  content: {
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginTop: 15,
+  },
+  titleText: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#1E293B',
+    textAlign: 'center',
+  },
+  modalSubText: {
+    fontSize: 14,
+    color: '#64748B',
+    textAlign: 'center',
+    marginTop: 10,
+    lineHeight: 20,
+  },
+  buttonWrapper: {
+    marginTop: 25,
+    width: '100%',
+    borderRadius: 15,
+    overflow: 'hidden',
+  },
+  gradientButton: {
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  sparkleLeft: { position: 'absolute', top: 60, left: 40 },
+  sparkleRight: { position: 'absolute', top: 20, right: 40 },
+  closeTextBtn: { marginTop: 15 },
+  maybeLater: { color: '#94A3B8', fontSize: 13, fontWeight: '600' },
   gradientBlessed: {
     paddingVertical: 18,
     alignItems: 'center',
@@ -1639,4 +1622,72 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   playMusicText: {fontSize: 30},
+  ceremonyContainer: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  annaprasanTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#7B3F00',
+    textAlign: 'center',
+    letterSpacing: 1,
+  },
+  goldDivider: {
+    height: 2,
+    width: '50%',
+    backgroundColor: '#7B3F00',
+    marginVertical: 10,
+    opacity: 0.5,
+  },
+  ceremonyMainText: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#B45309',
+    marginBottom: 6,
+  },
+  ceremonySubText: {
+    fontSize: 13,
+    color: '#7B3F00',
+    textAlign: 'center',
+    fontStyle: 'italic',
+    paddingHorizontal: 15,
+    lineHeight: 18,
+    marginBottom: 15,
+  },
+  ceremonyIconRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+    marginTop: 5,
+  },
+  ceremonyItem: {
+    alignItems: 'center',
+  },
+  ceremonyEmoji: {
+    fontSize: 28,
+    marginBottom: 4,
+  },
+  ceremonyLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#7B3F00',
+  },
+  celebrationShadow: {
+    elevation: 12,
+    shadowColor: '#F59E0B',
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
+    borderWidth: 2,
+    borderColor: '#FFF',
+  },
+  flowerRainOverlay: {
+    position: 'absolute', // Poori screen par failane ke liye
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 9999,        // Sabse upar dikhane ke liye
+    elevation: 10,       // Android ke liye extra priority
+  },
 });
