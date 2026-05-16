@@ -30,18 +30,21 @@ const BABY_BIRTHDATE = new Date('2025-11-02');
 const PREGNANCY_DUE_DATE = new Date('2025-12-15');
 
 const COLORS = {
-  primary: '#2D5A4F',
-  primaryLight: '#4A7C6E',
-  primaryBg: '#F0F6F4',
-  accent: '#E8A89B',
-  accentLight: '#F5E6E3',
-  success: '#6BA587',
-  warning: '#EDB88B',
-  background: '#FAFBF9',
+  primary: '#06B6D4',
+  primaryLight: '#22D3EE',
+  primaryBg: '#ECFDF5',
+  accent: '#F43F5E',
+  accentLight: '#FFE4E6',
+  success: '#10B981',
+  warning: '#F59E0B',
+  background: '#F0F9FF',
   surface: '#FFFFFF',
-  text: '#1F2937',
-  textSecondary: '#6B7280',
-  border: '#E5E7EB',
+  text: '#0F172A',
+  textSecondary: '#64748B',
+  border: '#DBEAFE',
+  purple: '#A855F7',
+  blue: '#0EA5E9',
+  pink: '#EC4899',
 };
 
 function calculateAge(birthDate) {
@@ -79,88 +82,304 @@ function calculatePregnancyProgress(dueDate) {
 // --- COMPONENTS ---
 
 function AgeCard() {
-  const age = useMemo(() => calculateAge(BABY_BIRTHDATE), []);
-  const today = new Date();
+  const [today, setToday] = useState(new Date());
 
-  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setToday(new Date());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const age = calculateAge(BABY_BIRTHDATE);
+
   const units = [
-    { key: 'years', label: 'Years', emoji: '🎂' }, // Birthday balloon
-    { key: 'months', label: 'Months', emoji: '🍼' }, // Feeding bottle
-    { key: 'days', label: 'Days', emoji: '✨' },   // Sparkles for every day
+    {key: 'years', label: 'Years', emoji: '🎂'},
+    {key: 'months', label: 'Months', emoji: '🍼'},
+    {key: 'days', label: 'Days', emoji: '✨'},
   ];
-  
-  // 1. Annaprasan Day Check (2 May 2026)
-  // JS months 0 से start hote hain (Jan=0, Feb=1... May=4)
-  const isAnnaprasanDay = today.getDate() === 2 && today.getMonth() === 4 && today.getFullYear() === 2026;
-  
-  // 2. Regular Monthly Birthday Check (Har mahine ki 2 tarikh)
-  const isMonthlyBirthday = today.getDate() === 2 && !isAnnaprasanDay;
+
+  // 🥣 Annaprashan Day → 2 May 2026
+  const isAnnaprasanDay =
+    today.getDate() === 2 &&
+    today.getMonth() === 4 &&
+    today.getFullYear() === 2026;
+
+  // 🎂 Every Month 2nd Date
+  const isMonthlyBirthday = today.getDate() === 2;
 
   return (
     <View style={styles.ageCardContainer}>
-    
-        {isAnnaprasanDay ? (
-            <LinearGradient
-            // Annaprasan: Saffron-Orange | Monthly: Gold | Normal: White
-            colors={
-              isAnnaprasanDay ? ['#FF9933', '#FFCC33'] : 
-              isMonthlyBirthday ? ['#FFD700', '#F59E0B'] : 
-              [COLORS.surface, COLORS.surface]
-            }
-            style={[styles.ageCard, (isAnnaprasanDay || isMonthlyBirthday) && styles.celebrationShadow]}
-          >
-          /* --- ANNAPRASHAN SPECIAL VIEW --- */
+      
+      {isAnnaprasanDay ? (
+        /* ---------------- ANNAPRASHAN VIEW ---------------- */
+        <LinearGradient
+          colors={['#FF9933', '#FFCC33']}
+          style={[styles.ageCard, styles.celebrationShadow]}>
+          
           <View style={styles.ceremonyContainer}>
-            <Text style={styles.annaprasanTitle}>🥣 Annaprasan Sanskar 🥣</Text>
-            <View style={styles.goldDivider} />
-            <Text style={styles.ceremonyMainText}>Dhruv's First Solid Meal!</Text>
-            <Text style={styles.ceremonySubText}>
-              "May this first morsel of food bring health, strength, and the sweetness of life to our little Prince." ✨
+            <Text style={styles.annaprasanTitle}>
+              🥣 Annaprasan Sanskar 🥣
             </Text>
-            
+
+            <View style={styles.goldDivider} />
+
+            <Text style={styles.ceremonyMainText}>
+              Dhruv's First Solid Meal!
+            </Text>
+
+            <Text style={styles.ceremonySubText}>
+              "May this first morsel of food bring health,
+              strength, and sweetness of life." ✨
+            </Text>
+
             <View style={styles.ceremonyIconRow}>
               <View style={styles.ceremonyItem}>
                 <Text style={styles.ceremonyEmoji}>🍚</Text>
                 <Text style={styles.ceremonyLabel}>Rice</Text>
               </View>
+
               <View style={styles.ceremonyItem}>
                 <Text style={styles.ceremonyEmoji}>🥄</Text>
                 <Text style={styles.ceremonyLabel}>First Spoon</Text>
               </View>
+
               <View style={styles.ceremonyItem}>
                 <Text style={styles.ceremonyEmoji}>🙏</Text>
                 <Text style={styles.ceremonyLabel}>Blessings</Text>
               </View>
             </View>
           </View>
-              </LinearGradient>
-        ) : (
-          /* --- REGULAR AGE VIEW --- */
-          <>
-           <View style={styles.ageCardContainer}>
-      <View style={styles.ageCard}>
-        <View style={styles.ageCardHeaderRow}>
-          <Text style={styles.ageCardTitle}>{BABY_NAME}'s Age</Text>
-          <Text style={styles.ageCardPulse}>● Live</Text>
-        </View>
-        <View style={styles.ageGrid}>
-          {units.map(({key, label, emoji}) => (
-            <View style={styles.ageItem} key={key}>
-              <Text style={styles.ageEmoji}>{emoji}</Text>
-              <View style={styles.ageValueBox}>
-                <Text style={styles.ageValue}>{age[key]}</Text>
+        </LinearGradient>
+      ) : isMonthlyBirthday ? (
+        /* ---------------- MONTHLY BIRTHDAY VIEW ---------------- */
+        <LinearGradient
+        colors={['#FF9A8B', '#FF6A88', '#FFB347']}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
+        style={[
+          styles.ageCard,
+          styles.celebrationShadow,
+          {
+            overflow: 'hidden',
+            paddingVertical: 30,
+          },
+        ]}>
+      
+        {/* Floating Decorations */}
+        <Text
+          style={{
+            position: 'absolute',
+            top: 15,
+            left: 20,
+            fontSize: 26,
+            opacity: 0.25,
+          }}>
+          ✨
+        </Text>
+      
+        <Text
+          style={{
+            position: 'absolute',
+            top: 20,
+            right: 25,
+            fontSize: 24,
+            opacity: 0.25,
+          }}>
+          🎈
+        </Text>
+      
+        <Text
+          style={{
+            position: 'absolute',
+            bottom: 18,
+            left: 25,
+            fontSize: 24,
+            opacity: 0.2,
+          }}>
+          🎉
+        </Text>
+      
+        <View style={{alignItems: 'center'}}>
+      
+          {/* Crown Icon */}
+          <View
+            style={{
+              width: 80,
+              height: 80,
+              borderRadius: 40,
+              backgroundColor: 'rgba(255,255,255,0.18)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              marginBottom: 18,
+              borderWidth: 2,
+              borderColor: 'rgba(255,255,255,0.3)',
+            }}>
+            <Text style={{fontSize: 42}}>👑</Text>
+          </View>
+      
+          {/* Main Heading */}
+          <Text
+            style={{
+              fontSize: 28,
+              fontWeight: '900',
+              color: '#FFF',
+              marginBottom: 8,
+              letterSpacing: 0.8,
+              textAlign: 'center',
+            }}>
+            🎂 Happy Monthly Birthday 🎂
+          </Text>
+      
+          {/* Baby Name */}
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: '800',
+              color: '#FFF8DC',
+              marginBottom: 10,
+            }}>
+            Dhruv Gautam
+          </Text>
+      
+          {/* Subtitle */}
+          <Text
+            style={{
+              fontSize: 14,
+              color: 'rgba(255,255,255,0.92)',
+              textAlign: 'center',
+              lineHeight: 22,
+              paddingHorizontal: 18,
+              marginBottom: 25,
+            }}>
+            🌟 Our little prince is growing with love, joy,
+            and endless blessings every month ✨
+          </Text>
+      
+          {/* Age Cards */}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              width: '100%',
+            }}>
+            {units.map(({key, label, emoji}) => (
+              <View
+                key={key}
+                style={{
+                  alignItems: 'center',
+                  flex: 1,
+                }}>
+      
+                {/* Emoji Bubble */}
+                <View
+                  style={{
+                    width: 55,
+                    height: 55,
+                    borderRadius: 28,
+                    backgroundColor: 'rgba(255,255,255,0.2)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    marginBottom: 10,
+                  }}>
+                  <Text style={{fontSize: 26}}>{emoji}</Text>
+                </View>
+      
+                {/* Number Box */}
+                <LinearGradient
+                  colors={['#FFFFFF', '#FFF7ED']}
+                  style={{
+                    minWidth: 80,
+                    paddingVertical: 14,
+                    borderRadius: 22,
+                    alignItems: 'center',
+                    elevation: 6,
+                    shadowColor: '#000',
+                    shadowOpacity: 0.15,
+                    shadowRadius: 8,
+                    marginBottom: 8,
+                  }}>
+      
+                  <Text
+                    style={{
+                      fontSize: 30,
+                      fontWeight: '900',
+                      color: '#FF6A88',
+                    }}>
+                    {age[key]}
+                  </Text>
+                </LinearGradient>
+      
+                {/* Label */}
+                <Text
+                  style={{
+                    fontSize: 13,
+                    fontWeight: '700',
+                    color: '#FFF',
+                    letterSpacing: 0.5,
+                  }}>
+                  {label}
+                </Text>
               </View>
-              <Text style={styles.ageLabel}>{label}</Text>
-            </View>
-          ))}
+            ))}
+          </View>
+      
+          {/* Bottom Blessing */}
+          <View
+            style={{
+              marginTop: 28,
+              backgroundColor: 'rgba(255,255,255,0.15)',
+              paddingHorizontal: 18,
+              paddingVertical: 10,
+              borderRadius: 20,
+              borderWidth: 1,
+              borderColor: 'rgba(255,255,255,0.2)',
+            }}>
+            <Text
+              style={{
+                color: '#FFF',
+                fontSize: 13,
+                fontWeight: '700',
+                textAlign: 'center',
+              }}>
+              💖 Stay Healthy • Happy • Blessed 💖
+            </Text>
+          </View>
         </View>
-      </View>
-    </View>
-            
-           
-          </>
-        )}
-  
+      </LinearGradient>
+      ) : (
+        /* ---------------- NORMAL VIEW ---------------- */
+        <View style={styles.ageCard}>
+          <View style={styles.ageCardHeaderRow}>
+            <Text style={styles.ageCardTitle}>
+              {BABY_NAME}'s Age
+            </Text>
+
+            <Text style={styles.ageCardPulse}>
+              ● Live
+            </Text>
+          </View>
+
+          <View style={styles.ageGrid}>
+            {units.map(({key, label, emoji}) => (
+              <View style={styles.ageItem} key={key}>
+                <Text style={styles.ageEmoji}>{emoji}</Text>
+
+                <View style={styles.ageValueBox}>
+                  <Text style={styles.ageValue}>
+                    {age[key]}
+                  </Text>
+                </View>
+
+                <Text style={styles.ageLabel}>
+                  {label}
+                </Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
     </View>
   );
 }
@@ -640,7 +859,9 @@ function VaccineTrackerScreen() {
     },
 
     /* ------------------ 6 MONTHS ------------------ */
-    {name: 'Influenza (IIV) – 1', weeks: 24, emoji: '🤧', category: '6 Months'},
+    {name: 'Influenza (IIV) – 1', weeks: 24, emoji: '🤧', category: '6 Months',
+    givenDate: '13 May 2026',
+    },
 
     /* ------------------ 7 MONTHS ------------------ */
     {name: 'Influenza (IIV) – 2', weeks: 28, emoji: '🤧', category: '7 Months'},
@@ -793,7 +1014,7 @@ function VaccineTrackerScreen() {
         {nextUpcomingVaccine && (
           <UpcomingInjectionCard
             vaccine={nextUpcomingVaccine}
-            scheduledDate={'2 May 2026'}
+            scheduledDate={'13 June 2026'}
           />
         )}
 
@@ -1025,29 +1246,36 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 12,
     backgroundColor: COLORS.surface,
-    borderBottomWidth: 1,
+    borderBottomWidth: 2,
     borderBottomColor: COLORS.border,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
   },
   headerTitle: {
-    fontSize: 28,
-    fontWeight: '700',
+    fontSize: 32,
+    fontWeight: '800',
     color: COLORS.text,
     marginBottom: 4,
+    letterSpacing: -0.5,
   },
   headerSubtitle: {
-    fontSize: 14,
+    fontSize: 15,
     color: COLORS.textSecondary,
-    fontWeight: '500',
+    fontWeight: '600',
   },
-  ageCardContainer: {marginHorizontal: 6, marginVertical: 10},
+  ageCardContainer: {marginHorizontal: 12, marginVertical: 14},
   ageCard: {
     backgroundColor: COLORS.surface,
-    borderRadius: 20,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4,
+    borderRadius: 28,
+    padding: 28,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 6,
+    borderWidth: 1.5,
+    borderColor: '#E0F2FE',
   },
   ageCardHeaderRow: {
     flexDirection: 'row',
@@ -1070,27 +1298,33 @@ const styles = StyleSheet.create({
   ageItem: {alignItems: 'center', gap: 8},
   ageEmoji: {fontSize: 32},
   ageValueBox: {
-    backgroundColor: COLORS.primaryBg,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 12,
-    minWidth: 60,
+    backgroundColor: 'linear-gradient(135deg, #ECFDF5 0%, #E0F2FE 100%)',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 16,
+    minWidth: 72,
     alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.primaryLight,
+    elevation: 2,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
   },
-  ageValue: {fontSize: 20, fontWeight: '700', color: COLORS.primary},
+  ageValue: {fontSize: 28, fontWeight: '900', color: COLORS.primary, letterSpacing: -0.5},
   ageLabel: {fontSize: 12, color: COLORS.textSecondary, fontWeight: '600'},
   // NEXT UP CARD STYLES (NEW)
   upcomingInjectionContainer: {
     marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 28,
+    marginVertical: 16,
+    borderRadius: 32,
     overflow: 'hidden',
-    elevation: 10,
-    shadowColor: '#FF7F7F',
-    shadowOpacity: 0.3,
-    shadowRadius: 15,
+    elevation: 12,
+    shadowColor: '#F43F5E',
+    shadowOpacity: 0.25,
+    shadowRadius: 18,
   },
-  upcomingInjectionGradient: {padding: 20, paddingTop: 15},
+  upcomingInjectionGradient: {padding: 24, paddingTop: 18},
   floatingBadgeGlass: {
     backgroundColor: 'rgba(255,255,255,0.25)',
     paddingHorizontal: 12,
@@ -1177,64 +1411,84 @@ const styles = StyleSheet.create({
 
   statsRow: {
     flexDirection: 'row',
-    gap: 12,
+    gap: 14,
     paddingHorizontal: 16,
-    paddingVertical: 16,
+    paddingVertical: 18,
   },
   statCard: {
     flex: 1,
-    borderRadius: 16,
-    padding: 14,
+    borderRadius: 22,
+    padding: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
-    elevation: 2,
+    gap: 8,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    borderWidth: 1.5,
+    borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
   },
-  statEmoji: {fontSize: 28},
-  statValue: {fontSize: 20, fontWeight: '700', color: COLORS.text},
-  statLabel: {fontSize: 12, color: COLORS.textSecondary, fontWeight: '600'},
+  statEmoji: {fontSize: 32},
+  statValue: {fontSize: 22, fontWeight: '800', color: COLORS.text, letterSpacing: -0.3},
+  statLabel: {fontSize: 13, color: COLORS.textSecondary, fontWeight: '700'},
   addButton: {
     marginHorizontal: 16,
-    marginVertical: 12,
+    marginVertical: 14,
     overflow: 'hidden',
-    borderRadius: 16,
+    borderRadius: 20,
+    elevation: 5,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
   },
   addButtonGradient: {
-    paddingVertical: 18,
+    paddingVertical: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  addButtonText: {fontSize: 16, fontWeight: '800', color: COLORS.surface},
-  historySection: {paddingHorizontal: 16, paddingBottom: 16},
+  addButtonText: {fontSize: 17, fontWeight: '900', color: COLORS.surface, letterSpacing: -0.3},
+  historySection: {paddingHorizontal: 16, paddingBottom: 18},
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '800',
+    fontSize: 18,
+    fontWeight: '900',
     color: COLORS.text,
-    marginBottom: 12,
+    marginBottom: 14,
+    letterSpacing: -0.4,
   },
   emptyState: {alignItems: 'center', paddingVertical: 40},
   emptyStateEmoji: {fontSize: 48, marginBottom: 12},
   emptyStateText: {fontSize: 14, color: COLORS.textSecondary},
   feedingCard: {
     borderLeftWidth: 6,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
-  },
-  feedingHeader: {flexDirection: 'row', alignItems: 'center', gap: 12},
-  feedingIconBox: {
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 14,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
     backgroundColor: COLORS.surface,
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+  },
+  feedingHeader: {flexDirection: 'row', alignItems: 'center', gap: 14},
+  feedingIconBox: {
+    backgroundColor: COLORS.background,
+    width: 54,
+    height: 54,
+    borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
-  feedingIcon: {fontSize: 24},
+  feedingIcon: {fontSize: 28},
   feedingInfo: {flex: 1},
-  feedingType: {fontSize: 14, fontWeight: '700', color: COLORS.text},
-  feedingTime: {fontSize: 12, color: COLORS.textSecondary, marginTop: 2},
+  feedingType: {fontSize: 15, fontWeight: '800', color: COLORS.text, letterSpacing: -0.2},
+  feedingTime: {fontSize: 13, color: COLORS.textSecondary, marginTop: 4, fontWeight: '500'},
   feedingAmount: {gap: 6},
   feedingBadge: {
     backgroundColor: COLORS.surface,
@@ -1250,166 +1504,189 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 24,
-    paddingBottom: 40,
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    padding: 28,
+    paddingBottom: 44,
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    backgroundColor: COLORS.surface,
   },
   modalDragHandle: {
-    width: 40,
+    width: 48,
     height: 5,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#CBD5E1',
     alignSelf: 'center',
     borderRadius: 3,
-    marginBottom: 15,
+    marginBottom: 18,
   },
   modalTitle: {
-    fontSize: 22,
-    fontWeight: '800',
+    fontSize: 26,
+    fontWeight: '900',
     color: COLORS.text,
-    marginBottom: 20,
+    marginBottom: 24,
+    letterSpacing: -0.5,
   },
   modalLabel: {
-    fontSize: 14,
-    fontWeight: '600',
+    fontSize: 15,
+    fontWeight: '700',
     color: COLORS.text,
-    marginBottom: 8,
-    marginTop: 12,
+    marginBottom: 10,
+    marginTop: 14,
   },
   typeSelector: {flexDirection: 'row', gap: 12, marginBottom: 4},
   typeButton: {
     flex: 1,
-    paddingVertical: 16,
-    borderRadius: 14,
+    paddingVertical: 18,
+    borderRadius: 18,
     alignItems: 'center',
     backgroundColor: COLORS.background,
-    borderWidth: 1,
+    borderWidth: 2.5,
     borderColor: COLORS.border,
+    elevation: 2,
   },
   typeButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
+    fontSize: 15,
+    fontWeight: '800',
     color: COLORS.textSecondary,
+    letterSpacing: -0.2,
   },
   typeButtonTextActive: {color: COLORS.surface},
   input: {
-    borderWidth: 1.5,
+    borderWidth: 2,
     borderColor: COLORS.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
     fontSize: 15,
     color: COLORS.text,
-    backgroundColor: '#FAFAFA',
+    backgroundColor: '#F0F9FF',
     marginBottom: 4,
+    elevation: 2,
+    fontWeight: '500',
   },
-  modalButtons: {flexDirection: 'row', gap: 12, marginTop: 25},
-  modalButton: {flex: 1, overflow: 'hidden', borderRadius: 14},
-  cancelButton: {backgroundColor: '#F3F4F6'},
+  modalButtons: {flexDirection: 'row', gap: 14, marginTop: 28},
+  modalButton: {flex: 1, overflow: 'hidden', borderRadius: 16},
+  cancelButton: {backgroundColor: COLORS.background, borderWidth: 2, borderColor: COLORS.border},
   cancelButtonText: {
-    paddingVertical: 16,
+    paddingVertical: 18,
     textAlign: 'center',
-    fontSize: 14,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
+    fontSize: 15,
+    fontWeight: '800',
+    color: COLORS.text,
+    letterSpacing: -0.2,
   },
-  saveButton: {overflow: 'hidden', borderRadius: 14},
-  saveButtonGradient: {paddingVertical: 16, alignItems: 'center'},
-  saveButtonText: {fontSize: 14, fontWeight: '800', color: COLORS.surface},
+  saveButton: {overflow: 'hidden', borderRadius: 16},
+  saveButtonGradient: {paddingVertical: 18, alignItems: 'center'},
+  saveButtonText: {fontSize: 15, fontWeight: '900', color: COLORS.surface, letterSpacing: -0.2},
   headerGradient: {
-    height: 280,
+    height: 300,
     width: '100%',
     justifyContent: 'flex-end',
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
     overflow: 'hidden',
+    elevation: 3,
   },
-  headerOverlay: {padding: 25, paddingBottom: 35},
+  headerOverlay: {padding: 28, paddingBottom: 38},
   welcomeText: {
-    fontSize: 15,
+    fontSize: 16,
     color: COLORS.surface,
-    fontWeight: '700',
-    opacity: 0.9,
-    marginBottom: 10,
+    fontWeight: '800',
+    opacity: 0.92,
+    marginBottom: 12,
     textAlign: 'center',
+    letterSpacing: -0.3,
   },
   babyName: {
-    fontSize: 34,
+    fontSize: 38,
     fontWeight: '900',
     color: COLORS.surface,
     marginBottom: 8,
     textAlign: 'center',
   },
   babyBirthdate: {
-    fontSize: 15,
+    fontSize: 16,
     color: COLORS.surface,
-    marginBottom: 4,
+    marginBottom: 6,
     textAlign: 'center',
-    opacity: 0.9,
+    opacity: 0.92,
+    fontWeight: '600',
+    letterSpacing: -0.2,
   },
   babyBlessing: {
-    fontSize: 13,
-    color: COLORS.surface,
-    fontWeight: '600',
-    textAlign: 'center',
-  },
-  pregnancyHeader: {
-    height: 280,
-    width: '100%',
-    justifyContent: 'flex-end',
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-    overflow: 'hidden',
-  },
-  pregnancyHeaderContent: {
-    padding: 25,
-    alignItems: 'center',
-    paddingBottom: 35,
-  },
-  pregnancyHeaderEmoji: {fontSize: 56, marginBottom: 12},
-  pregnancyHeaderTitle: {
-    fontSize: 24,
-    fontWeight: '800',
-    color: COLORS.surface,
-    marginBottom: 12,
-  },
-  pregnancyWeek: {fontSize: 20, fontWeight: '800', color: COLORS.surface},
-  pregnancyDays: {
     fontSize: 14,
     color: COLORS.surface,
-    marginTop: 4,
-    opacity: 0.9,
+    fontWeight: '700',
+    textAlign: 'center',
+    opacity: 0.88,
   },
-  progressSection: {paddingHorizontal: 16, paddingVertical: 20},
+  pregnancyHeader: {
+    height: 300,
+    width: '100%',
+    justifyContent: 'flex-end',
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+    overflow: 'hidden',
+    elevation: 3,
+  },
+  pregnancyHeaderContent: {
+    padding: 28,
+    alignItems: 'center',
+    paddingBottom: 38,
+  },
+  pregnancyHeaderEmoji: {fontSize: 64, marginBottom: 14},
+  pregnancyHeaderTitle: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: COLORS.surface,
+    marginBottom: 14,
+    letterSpacing: -0.4,
+  },
+  pregnancyWeek: {fontSize: 24, fontWeight: '900', color: COLORS.surface, letterSpacing: -0.3},
+  pregnancyDays: {
+    fontSize: 15,
+    color: COLORS.surface,
+    marginTop: 6,
+    opacity: 0.92,
+    fontWeight: '600',
+  },
+  progressSection: {paddingHorizontal: 16, paddingVertical: 22},
   progressInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
+    marginBottom: 14,
   },
-  progressLabel: {fontSize: 15, fontWeight: '700', color: COLORS.text},
-  progressPercent: {fontSize: 18, fontWeight: '800', color: COLORS.primary},
+  progressLabel: {fontSize: 16, fontWeight: '800', color: COLORS.text, letterSpacing: -0.2},
+  progressPercent: {fontSize: 20, fontWeight: '900', color: COLORS.primary},
   progressBarContainer: {
-    height: 10,
-    backgroundColor: COLORS.border,
-    borderRadius: 5,
+    height: 14,
+    backgroundColor: '#DBEAFE',
+    borderRadius: 7,
     overflow: 'hidden',
+    elevation: 2,
+    shadowColor: COLORS.primary,
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
   },
-  progressBar: {height: '100%', borderRadius: 5},
-  checkupsSection: {paddingHorizontal: 16, paddingVertical: 16},
+  progressBar: {height: '100%', borderRadius: 7},
+  checkupsSection: {paddingHorizontal: 16, paddingVertical: 18},
   checkupCard: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     borderLeftWidth: 6,
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 12,
-    elevation: 2,
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 14,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    backgroundColor: COLORS.surface,
   },
-  checkupLeft: {flexDirection: 'row', alignItems: 'center', flex: 1, gap: 12},
+  checkupLeft: {flexDirection: 'row', alignItems: 'center', flex: 1, gap: 14},
   checkupWeek: {
     width: 44,
     height: 44,
@@ -1435,7 +1712,12 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     padding: 16,
     alignItems: 'center',
-    elevation: 1,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.5)',
   },
   tipEmoji: {fontSize: 36, marginBottom: 10},
   tipTitle: {
@@ -1551,11 +1833,17 @@ const styles = StyleSheet.create({
   filterButtonTextActive: {color: COLORS.surface},
   vaccineList: {paddingHorizontal: 16, paddingBottom: 100},
   vaccineCard: {
-    borderLeftWidth: 6,
+    borderLeftWidth: 5,
     borderRadius: 20,
     padding: 16,
     marginBottom: 15,
     elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    backgroundColor: COLORS.surface,
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
   },
   vaccineCardContent: {flexDirection: 'row', alignItems: 'center', gap: 12},
   vaccineIcon: {fontSize: 32},

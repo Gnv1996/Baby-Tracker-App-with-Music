@@ -58,7 +58,7 @@ const vaccines = [
   { name: "PCV 3", weeks: 14, emoji: "🫁", category: "14 Weeks" ,givenDate: '27 Feb 2026',},
 
   /* ------------------ 6 MONTHS ------------------ */
-  { name: "Influenza (IIV) – 1", weeks: 24, emoji: "🤧", category: "6 Months" },
+  { name: "Influenza (IIV) – 1", weeks: 24, emoji: "🤧", category: "6 Months",    givenDate: "13 May 2026", },
 
   /* ------------------ 7 MONTHS ------------------ */
   { name: "Influenza (IIV) – 2", weeks: 28, emoji: "🤧", category: "7 Months" },
@@ -97,7 +97,7 @@ const vaccines = [
 ];
 
 
-const babyBirthDate = moment("2025-11-02")
+const babyBirthDate = moment("2025-12-02")
 
 const VaccineTrackerScreen = () => {
   const [today, setToday] = useState(moment())
