@@ -1,394 +1,394 @@
-'use client';
-
-import React, { useRef, useEffect } from 'react';
+import React from 'react';
 import {
-  View,
-  Text,
-  ScrollView,
   StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Image,
   SafeAreaView,
   StatusBar,
   Dimensions,
-  Animated,
 } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
-const FOOD_DATA = [
-  {
-    title: 'Cereals & Grains',
-    emoji: '🥣',
-    foods: ['Rice Porridge', 'Dal Rice Mash', 'Suji Kheer', 'Oats Porridge', 'Ragi Porridge'],
-    colors: ['#FFF8F0', '#FFF0E0'],
-    accentColor: '#FFB347',
-  },
-  {
-    title: 'Fruits',
-    emoji: '🍎',
-    foods: ['Banana Mash', 'Apple Puree', 'Papaya Mash', 'Pear Puree', 'Avocado Mash'],
-    colors: ['#FFF0F5', '#FFE4E1'],
-    accentColor: '#FF6B8B',
-  },
-  {
-    title: 'Vegetables',
-    emoji: '🥕',
-    foods: ['Carrot Mash', 'Potato Mash', 'Sweet Potato', 'Pumpkin Mash', 'Lauki Mash', 'Palak Puree'],
-    colors: ['#F0FFF0', '#E6FFE6'],
-    accentColor: '#52C41A',
-  },
-  {
-    title: 'Protein Foods',
-    emoji: '🧀',
-    foods: ['Moong Dal Soup', 'Dal Rice Mash', 'Paneer Mash', 'Fresh Curd'],
-    colors: ['#F0F8FF', '#E6F3FF'],
-    accentColor: '#1890FF',
-  },
+// Optimized image URLs with high availability production tags
+const WHAT_TO_FEED = [
+  { id: '1', title: 'ठंडा केला मैश करके', desc: 'यह नरम होता है और मसूड़ों को आराम देता है।', img: 'https://images.unsplash.com/photo-1566393028639-d108a42c46a7?w=200&q=80' },
+  { id: '2', title: 'दही (ठंडी और ताजी)', desc: 'मसूड़ों को ठंडक देता है और पचने में आसान है।', img: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=150&q=80' },
+  { id: '3', title: 'उबला हुआ आलू मैश करके', desc: 'नरम और हल्का, बच्चा आसानी से खा सकता है।', img: 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?w=200&q=80' },
+  { id: '4', title: 'सेब की प्यूरी (उबालकर)', desc: 'पौष्टिक और मसूड़ों के लिए अच्छा है।', img: 'https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?w=200&q=80' },
+  { id: '5', title: 'मां का दूध (Breastfeeding)', desc: 'बच्चे के लिए सर्वोत्तम और आराम देता है।', img: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?w=200&q=80' },
+  { id: '6', title: 'ठंडी गाजर (बड़े बच्चे के लिए)', desc: 'हल्का चबाने से मसूड़ों को आराम देता है।', img: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=200&q=80' },
 ];
 
-function AnimatedCard({ children, index }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const slideAnim = useRef(new Animated.Value(50)).current;
+const WHAT_NOT_TO_DO = [
+  { id: '1', title: 'ज्यादा मीठी चीजें न दें।', img: 'https://images.unsplash.com/photo-1581798459219-318e76aecc7b?w=200&q=80' },
+  { id: '2', title: 'गंदे हाथ या खिलौने मुँह में न जाने दें।', img: 'https://images.unsplash.com/photo-1531747118685-ca8fa6e08806?w=200&q=80' },
+  { id: '3', title: 'पूरे मेवे और सख्त चीजें न दें।', img: 'https://images.unsplash.com/photo-1608797178974-15b35a61d121?w=200&q=80' },
+];
 
-  useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        delay: index * 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 600,
-        delay: index * 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-  }, []);
+const WHAT_ELSE_TO_DO = [
+  { id: '1', title: 'साफ उंगली से हल्के हाथ से मसूड़ों की मालिश करें।', img: 'https://images.unsplash.com/photo-1543333995-a78aa23be7a7?w=200&q=80' },
+  { id: '2', title: 'साफ ठंडी टीथर (Teether) दें।', img: 'https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=200&q=80' },
+  { id: '3', title: 'बच्चे को प्यार और आराम दें।', img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=200&q=80' },
+];
 
+export default function App() {
   return (
-    <Animated.View style={{
-      opacity: fadeAnim,
-      transform: [{ translateY: slideAnim }],
-    }}>
-      {children}
-    </Animated.View>
-  );
-}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor="#FA8072" />
 
-export default function BabyFoodPlannerScreen() {
-    const BABY_DOB = new Date('2025-11-02'); // Baby birth date
-
-const getSolidFoodStartDate = () => {
-  const startDate = new Date(BABY_DOB);
-  startDate.setMonth(startDate.getMonth() + 6);
-
-  return startDate.toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
-};
-
-const solidFoodDate = getSolidFoodStartDate();
-
-
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8F9FA" />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}>
-        
-        {/* Header Section */}
-        <LinearGradient 
-          colors={['#FF6B9D', '#FFA502']} 
-          start={{x: 0, y: 0}} 
-          end={{x: 1, y: 1}}
-          style={styles.headerGradient}>
-          <View style={styles.headerContainer}>
-            <View style={styles.titleBadge}>
-              <Text style={styles.titleBadgeText}>HEALTHY START</Text>
-            </View>
-            <Text style={styles.title}>Baby Food Planner</Text>
-            <Text style={styles.subtitle}>
-              Nutritional milestones for your little one
-            </Text>
+      {/* ================= HERO BANNER WITH RE-POLISHED CONTENT ================= */}
+      <View style={styles.heroContainer}>
+        <Image
+  source={require('../Assest/maa.jpeg')}
+          style={styles.heroImage}
+          resizeMode="cover"
+        />
+        <View style={styles.heroOverlay}>
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroBadgeText}>👶 BABY HEALTH RECON</Text>
           </View>
-        </LinearGradient>
+          <Text style={styles.heroMainTitle}>Teething Relief Guide</Text>
+          <Text style={styles.heroSubTitle}>Solid Food Start: 2 May 2026</Text>
+          <Text style={styles.heroDescription}>
+            Your baby completes 6 months on this date 💚
+          </Text>
+        </View>
+      </View>
 
-        <AnimatedCard index={0}>
-          <LinearGradient 
-            colors={['#2ECC71', '#27AE60']} 
-            start={{x: 0, y: 0}} 
-            end={{x: 1, y: 1}}
-            style={styles.startCard}>
-            <View style={styles.startCardContent}>
-              <Text style={styles.startTitle}>Solid Food Start Date</Text>
-              <Text style={styles.startDate}>{solidFoodDate}</Text>
-              <Text style={styles.startDesc}>
-                Your baby completes 6 months on this date
-              </Text>
-            </View>
-          </LinearGradient>
-        </AnimatedCard>
-
-        {/* Food Categories Grid/List */}
-        {FOOD_DATA.map((section, index) => (
-          <AnimatedCard key={index} index={index + 1}>
-            <View style={styles.categoryCardWrapper}>
-              <LinearGradient
-                colors={section.colors}
-                start={{x: 0, y: 0}}
-                end={{x: 1, y: 1}}
-                style={styles.card}>
-
-                <View style={styles.cardHeader}>
-                  <View style={[styles.emojiBubble, { borderColor: section.accentColor, borderWidth: 2 }]}>
-                    <Text style={styles.foodEmoji}>{section.emoji}</Text>
-                  </View>
-                  <View style={styles.headerTextGroup}>
-                    <Text style={[styles.cardTitle, { color: section.accentColor }]}>
-                      {section.title}
-                    </Text>
-                    <View style={[styles.accentBar, { backgroundColor: section.accentColor }]} />
-                  </View>
-                </View>
-
-                <View style={styles.foodGrid}>
-                  {section.foods.map((food, i) => (
-                    <View key={i} style={[styles.foodChip, { borderColor: section.accentColor }]}>
-                      <View style={[styles.chipIndicator, { backgroundColor: section.accentColor }]} />
-                      <Text style={styles.foodItemText}>{food}</Text>
-                    </View>
-                  ))}
-                </View>
-              </LinearGradient>
-            </View>
-          </AnimatedCard>
-        ))}
-
-        {/* Actionable Insight Cards */}
-        <View style={styles.insightSection}>
+      {/* ================= TWO-COLUMN GRID CONTENT ================= */}
+      <ScrollView 
+        showsVerticalScrollIndicator={false} 
+        contentContainerStyle={styles.scrollContainer}
+      >
+        <View style={styles.mainGrid}>
           
-          {/* Warning Card */}
-          <AnimatedCard index={5}>
-            <LinearGradient colors={['#FF6B6B', '#FF5252']} style={styles.warningCard}>
-              <View style={styles.cardIconHeader}>
-                <Text style={styles.warningTitle}>Foods to Avoid</Text>
-                <View style={styles.urgentBadge}><Text style={styles.urgentText}>CRITICAL</Text></View>
-              </View>
-              <View style={styles.warningGrid}>
-                 {['Honey (pre 1yr)', 'Salt & Sugar', 'Whole Nuts', 'Cow Milk'].map((item, idx) => (
-                   <View key={idx} style={styles.warningItemWrapper}>
-                     <View style={styles.warningDot} />
-                     <Text style={styles.warningItem}>{item}</Text>
-                   </View>
-                 ))}
-              </View>
-            </LinearGradient>
-          </AnimatedCard>
+          {/* LEFT COLUMN: WHAT TO FEED */}
+          <View style={[styles.column, styles.leftColumn]}>
+            <View style={styles.greenHeader}>
+              <Text style={styles.columnHeaderText}>✅ क्या खिलाएं?</Text>
+            </View>
+            
+            <View style={styles.columnBody}>
+              {WHAT_TO_FEED.map((item) => (
+                <View key={item.id} style={styles.feedRow}>
+                  <Image source={{ uri: item.img }} style={styles.circleImage} />
+                  <View style={styles.textContainer}>
+                    <Text style={styles.itemTitle} numberOfLines={2}>
+                      <Text style={styles.greenNumber}>{item.id}. </Text>
+                      {item.title}
+                    </Text>
+                    <Text style={styles.itemDesc} numberOfLines={3}>{item.desc}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
 
-          {/* Water Guide Card */}
-          <AnimatedCard index={6}>
-            <LinearGradient colors={['#0984E3', '#0770D9']} style={styles.tipCard}>
-              <Text style={styles.tipTitleWhite}>Water Intake Guide</Text>
-              <View style={styles.guideRow}>
-                 <View style={styles.guideStep}>
-                   <Text style={styles.stepMonth}>0-6m</Text>
-                   <Text style={styles.stepInfoWhite}>None</Text>
-                 </View>
-                 <View style={styles.stepDivider} />
-                 <View style={styles.guideStep}>
-                   <Text style={styles.stepMonth}>6-8m</Text>
-                   <Text style={styles.stepInfoWhite}>2-3 Sips</Text>
-                 </View>
-                 <View style={styles.stepDivider} />
-                 <View style={styles.guideStep}>
-                   <Text style={styles.stepMonth}>8-12m</Text>
-                   <Text style={styles.stepInfoWhite}>50-100ml</Text>
-                 </View>
+          {/* RIGHT COLUMN: AVOID & TIPS */}
+          <View style={styles.column}>
+            
+            {/* Section: क्या न करें? */}
+            <View style={styles.sectionContainer}>
+              <View style={styles.redHeader}>
+                <Text style={styles.columnHeaderText}>❌ क्या न करें?</Text>
               </View>
-            </LinearGradient>
-          </AnimatedCard>
+              <View style={[styles.columnBody, styles.redBody]}>
+                {WHAT_NOT_TO_DO.map((item) => (
+                  <View key={item.id} style={styles.actionRow}>
+                    <Image source={{ uri: item.img }} style={styles.circleImageSmall} />
+                    <Text style={[styles.itemTitle, { flex: 1 }]} numberOfLines={2}>
+                      <Text style={styles.redNumber}>{item.id}. </Text>
+                      {item.title}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
 
-          {/* Smart Tips Card */}
-          <AnimatedCard index={7}>
-            <LinearGradient colors={['#F4D03F', '#F9E79F']} style={styles.tipsBox}>
-              <Text style={styles.tipTitleDark}>Pro-Tips</Text>
-              <View style={styles.tipsContent}>
-                <View style={styles.tipRow}>
-                  <View style={styles.tipBullet} />
-                  <Text style={styles.smallTip}>Introduce one food at a time (3-day rule)</Text>
-                </View>
-                <View style={styles.tipRow}>
-                  <View style={styles.tipBullet} />
-                  <Text style={styles.smallTip}>Mash properly to avoid choking</Text>
-                </View>
-                <View style={styles.tipRow}>
-                  <View style={styles.tipBullet} />
-                  <Text style={styles.smallTip}>Always serve boiled & cooled water</Text>
-                </View>
+            {/* Section: और क्या करें? */}
+            <View style={styles.sectionContainer}>
+              <View style={styles.blueHeader}>
+                <Text style={styles.columnHeaderText}>⭐ और क्या करें?</Text>
               </View>
-            </LinearGradient>
-          </AnimatedCard>
+              <View style={[styles.columnBody, styles.blueBody]}>
+                {WHAT_ELSE_TO_DO.map((item) => (
+                  <View key={item.id} style={styles.actionRow}>
+                    <Image source={{ uri: item.img }} style={styles.circleImageSmall} />
+                    <Text style={[styles.itemTitle, { flex: 1 }]} numberOfLines={2}>
+                      <Text style={styles.blueNumber}>{item.id}. </Text>
+                      {item.title}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+          </View>
+
         </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>Always consult your pediatrician for specific needs.</Text>
-        </View>
-
       </ScrollView>
+      
+      {/* Disclaimer Bottom Banner */}
+      <View style={styles.footer}>
+        <Text style={styles.footerText}>⚠️ Always consult your pediatrician for health concerns.</Text>
+      </View>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F7FA' },
-  scrollContent: { paddingBottom: 40 },
-
-  // Header
-  headerGradient: {
-    paddingTop: 30,
-    paddingBottom: 20,
-    elevation: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 20,
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
   },
-  headerContainer: { padding: 20, alignItems: 'center', justifyContent: 'center' },
-  titleBadge: {
-    backgroundColor: 'rgba(255,255,255,0.25)',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  titleBadgeText: { fontSize: 11, fontWeight: '900', color: '#FFFFFF', letterSpacing: 1.2 },
-  title: { fontSize: 36, fontWeight: '900', color: '#FFFFFF', letterSpacing: -0.5 },
-  subtitle: { fontSize: 14, color: 'rgba(255,255,255,0.9)', marginTop: 8, textAlign: 'center', fontWeight: '500' },
-
-  // Cards
-  categoryCardWrapper: {
-    marginHorizontal: 16,
-    marginVertical: 12,
-    borderRadius: 28,
+  heroContainer: {
     overflow: 'hidden',
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 18,
-    shadowOffset: { width: 0, height: 8 },
+    height: 380,
+    backgroundColor: '#10B981',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: '#059669',
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 12,
   },
-  card: { padding: 24, borderRadius: 28 },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 18 },
-  emojiBubble: {
-    width: 56,
-    height: 56,
-    borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.9)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-  },
-  foodEmoji: { fontSize: 30 },
-  headerTextGroup: { flex: 1 },
-  cardTitle: { fontSize: 22, fontWeight: '800', marginBottom: 4 },
-  accentBar: { width: 40, height: 5, borderRadius: 2.5, marginTop: 2 },
-
-  // Food Items
-  foodGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  foodChip: {
-    backgroundColor: 'rgba(255,255,255,0.85)',
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    borderRadius: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 2,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-  },
-  chipIndicator: { width: 6, height: 6, borderRadius: 3, marginRight: 10 },
-  foodItemText: { fontSize: 14, fontWeight: '700', color: '#333' },
-
-  // Insight Cards
-  insightSection: { marginTop: 16, paddingHorizontal: 16 },
-  warningCard: { padding: 22, borderRadius: 24, marginBottom: 16, elevation: 5, shadowColor: '#FF5252', shadowOpacity: 0.15, shadowRadius: 12 },
-  cardIconHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
-  urgentBadge: { backgroundColor: 'rgba(255,255,255,0.3)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
-  urgentText: { color: '#FFF', fontSize: 10, fontWeight: '900', letterSpacing: 0.5 },
-  warningTitle: { fontSize: 20, fontWeight: '800', color: '#FFFFFF' },
-  warningGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  warningItemWrapper: { flexDirection: 'row', alignItems: 'center', width: '50%', marginBottom: 12 },
-  warningDot: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#FFFFFF', marginRight: 10 },
-  warningItem: { fontSize: 13, fontWeight: '600', color: '#FFFFFF', flex: 1 },
-
-  tipCard: { padding: 22, borderRadius: 24, marginBottom: 16, elevation: 5, shadowColor: '#0984E3', shadowOpacity: 0.15, shadowRadius: 12 },
-  tipTitleWhite: { fontSize: 20, fontWeight: '800', color: '#FFFFFF', marginBottom: 16 },
-  tipTitleDark: { fontSize: 20, fontWeight: '800', color: '#333', marginBottom: 16 },
-  guideRow: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
-  stepDivider: { width: 1, height: 40, backgroundColor: 'rgba(255,255,255,0.3)' },
-  guideStep: { alignItems: 'center', flex: 1 },
-  stepMonth: { fontSize: 11, fontWeight: '800', color: 'rgba(255,255,255,0.8)' },
-  stepInfoWhite: { fontSize: 15, fontWeight: '900', color: '#FFFFFF', marginTop: 4 },
-
-  tipsBox: { padding: 22, borderRadius: 24, elevation: 5, shadowColor: '#F4D03F', shadowOpacity: 0.15, shadowRadius: 12 },
-  tipsContent: { gap: 12 },
-  tipRow: { flexDirection: 'row', alignItems: 'center' },
-  tipBullet: { width: 7, height: 7, borderRadius: 3.5, backgroundColor: '#D4A50F', marginRight: 12 },
-  smallTip: { fontSize: 13, color: '#333', fontWeight: '500', flex: 1, lineHeight: 18 },
-
-  footer: { paddingVertical: 40, alignItems: 'center' },
-  footerText: { fontSize: 12, color: '#999', fontWeight: '700', textAlign: 'center' },
   
-  startCard:{
-    marginHorizontal: 16,
-    marginTop: 20,
-    marginBottom: 10,
-    padding: 24,
-    borderRadius: 22,
-    alignItems: 'center',
-    elevation: 6,
-    shadowColor: '#2ECC71',
-    shadowOpacity: 0.2,
-    shadowRadius: 15,
-    shadowOffset: { width: 0, height: 8 },
-  },
-
-  startCardContent: {
-    alignItems: 'center',
+  heroImage: {
     width: '100%',
+    height: 380,
+    position: 'absolute',
   },
-
-  startTitle:{
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 8,
+  heroOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.38)',
+    paddingHorizontal: 20,
+    paddingVertical: 20,
+    justifyContent: 'flex-end',
+  },
+  heroBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 24,
+    marginBottom: 12,
+    borderWidth: 1.2,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  heroBadgeText: {
     color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0.8,
   },
-
-  startDate:{
-    fontSize: 28,
+  heroMainTitle: {
+    fontSize: 32,
     fontWeight: '900',
     color: '#FFFFFF',
-    marginBottom: 6,
-    letterSpacing: 0.5,
+    letterSpacing: -0.8,
+    marginBottom: 4,
+  },
+  heroSubTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#F0FDEF',
+    marginTop: 2,
+    letterSpacing: 0.3,
+  },
+  heroDescription: {
+    fontSize: 13,
+    color: '#E0F5DC',
+    marginTop: 4,
+    fontWeight: '500',
+    lineHeight: 18,
+  },
+  scrollContainer: {
+    paddingHorizontal: 12,
+    paddingTop: 16,
+    paddingBottom: 32,
+  },
+  mainGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  column: {
+    width: '49%',
+  },
+  leftColumn: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1.5,
+    borderColor: '#E8F5E9',
+    shadowColor: '#10B981',
+    shadowOpacity: 0.12,
+    shadowRadius: 14,
+    elevation: 5,
+  },
+  sectionContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 12,
+    borderWidth: 1.5,
+    borderColor: '#F0F4FF',
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  greenHeader: { 
+    backgroundColor: '#10B981', 
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    shadowColor: '#10B981',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  redHeader: { 
+    backgroundColor: '#F43F5E', 
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    shadowColor: '#F43F5E',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  blueHeader: { 
+    backgroundColor: '#3B82F6', 
+    paddingVertical: 14,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    shadowColor: '#3B82F6',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  
+  columnHeaderText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '900',
+    letterSpacing: 0.4,
+  },
+  columnBody: {
+    padding: 10,
+    backgroundColor: '#FAFBFC',
+  },
+  redBody: { backgroundColor: '#FFF7F8' },
+  blueBody: { backgroundColor: '#F0F6FF' },
+
+  // List Item Rows Style
+  feedRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 10,
+    marginBottom: 10,
+    borderWidth: 1.2,
+    borderColor: '#E8F5E9',
+    shadowColor: '#10B981',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  actionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    padding: 10,
+    marginBottom: 8,
+    borderWidth: 1.2,
+    borderColor: '#F3E8FF',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 5,
+    elevation: 2,
+  },
+  circleImage: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: '#E5E7EB',
+    marginRight: 10,
+    borderWidth: 2.5,
+    borderColor: '#F0FDEF',
+    shadowColor: '#10B981',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  circleImageSmall: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#E5E7EB',
+    marginRight: 10,
+    borderWidth: 2,
+    borderColor: '#F0F6FF',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  textContainer: {
+    flex: 1,
+  },
+  greenNumber: { 
+    color: '#10B981', 
+    fontWeight: '900',
+    fontSize: 12,
+  },
+  redNumber: { 
+    color: '#F43F5E', 
+    fontWeight: '900',
+    fontSize: 12,
+  },
+  blueNumber: { 
+    color: '#3B82F6', 
+    fontWeight: '900',
+    fontSize: 12,
   },
 
-  startDesc:{
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.95)',
+  itemTitle: {
+    fontSize: 12,
+    fontWeight: '800',
+    color: '#0F172A',
+    lineHeight: 15,
+    letterSpacing: 0.2,
+  },
+  itemDesc: {
+    fontSize: 10,
+    color: '#64748B',
+    marginTop: 3,
+    lineHeight: 13,
     fontWeight: '500',
+  },
+  footer: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderTopWidth: 1.5,
+    borderTopColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 5,
+  },
+  footerText: {
+    fontSize: 12,
+    color: '#475569',
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
 });

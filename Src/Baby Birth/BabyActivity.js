@@ -104,7 +104,7 @@ export default function BabyMilestonesScreen() {
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: bgColor}]}>
-      <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
+     <StatusBar barStyle="light-content" backgroundColor="#FA8072" />
       
       {/* Premium Header */}
       <View style={styles.header}>
