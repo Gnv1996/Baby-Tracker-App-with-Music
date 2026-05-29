@@ -385,6 +385,14 @@ function AgeCard() {
 }
 
 function UpcomingInjectionCard({vaccine, scheduledDate}) {
+  const formattedDate = vaccine.dueDate.toLocaleDateString(
+    'en-US',
+    {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    },
+  );
   return (
     <View style={styles.upcomingInjectionContainer}>
       <LinearGradient
@@ -415,14 +423,16 @@ function UpcomingInjectionCard({vaccine, scheduledDate}) {
 
           {/* Glass Date Box */}
           <View style={styles.glassDateBox}>
-            <Text style={styles.dueLabel}>DUE ON</Text>
-            <Text style={styles.dueDateValue}>
-              {scheduledDate.split(' ')[0]}
-            </Text>
-            <Text style={styles.dueYearValue}>
-              {scheduledDate.split(' ').slice(1).join(' ')}
-            </Text>
-          </View>
+  <Text style={styles.dueLabel}>DUE ON</Text>
+
+  <Text style={styles.dueDateValue}>
+  {formattedDate.split(' ')[0]}
+</Text>
+
+<Text style={styles.dueYearValue}>
+  {formattedDate.split(' ').slice(1).join(' ')}
+</Text>
+</View>
         </View>
 
         {/* Improved Footer */}
@@ -864,18 +874,23 @@ function VaccineTrackerScreen() {
     },
 
     /* ------------------ 7 MONTHS ------------------ */
-    {name: 'Influenza (IIV) – 2', weeks: 28, emoji: '🤧', category: '7 Months'},
+    {
+      name: 'Influenza (IIV) – 2',
+      weeks: 32,
+      emoji: '🤧',
+      category: '7 Months',
+    },
 
     /* ------------------ 6–9 MONTHS ------------------ */
     {
       name: 'Typhoid Conjugate Vaccine',
-      weeks: 36,
+      weeks: 37,
       emoji: '🥼',
       category: '9 Months',
     },
 
     /* ------------------ 9 MONTHS ------------------ */
-    {name: 'MMR – 1', weeks: 36, emoji: '😷', category: '9 Months'},
+    {name: 'MMR – 1', weeks: 37, emoji: '😷', category: '9 Months'},
 
     /* ------------------ 12 MONTHS ------------------ */
     {name: 'Hepatitis A (Live)', weeks: 52, emoji: '🍽️', category: '12 Months'},
@@ -945,17 +960,31 @@ function VaccineTrackerScreen() {
     day: 'numeric',
   });
 
+
   const nextUpcomingVaccine = useMemo(() => {
     const today = new Date();
-    const babyAgeWeeks = Math.floor(
-      (today - BABY_BIRTHDATE) / (1000 * 60 * 60 * 24 * 7),
+  
+    const upcomingVaccines = vaccines
+      .filter(v => !v.givenDate)
+      .map(v => {
+        const dueDate = new Date(BABY_BIRTHDATE);
+  
+        dueDate.setDate(
+          dueDate.getDate() + v.weeks * 7,
+        );
+  
+        return {
+          ...v,
+          dueDate,
+        };
+      })
+      .sort((a, b) => a.dueDate - b.dueDate);
+  
+    const next = upcomingVaccines.find(
+      v => v.dueDate >= today,
     );
-    const upcomingVaccines = vaccines.filter(v => !v.givenDate);
-    if (upcomingVaccines.length === 0) return null;
-    const sorted = [...upcomingVaccines].sort((a, b) => a.weeks - b.weeks);
-    let nextVaccine = sorted.find(v => v.weeks >= babyAgeWeeks);
-    if (!nextVaccine) nextVaccine = sorted[0];
-    return nextVaccine;
+  
+    return next || upcomingVaccines[0];
   }, []);
 
   return (
@@ -1012,10 +1041,10 @@ function VaccineTrackerScreen() {
         <AgeCard />
 
         {nextUpcomingVaccine && (
-          <UpcomingInjectionCard
-            vaccine={nextUpcomingVaccine}
-            scheduledDate={'13 June 2026'}
-          />
+         <UpcomingInjectionCard
+         vaccine={nextUpcomingVaccine}
+    
+       />
         )}
 
 <Modal transparent visible={modalVisible} animationType="slide">
