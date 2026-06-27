@@ -879,6 +879,7 @@ function VaccineTrackerScreen() {
       weeks: 32,
       emoji: '🤧',
       category: '7 Months',
+      givenDate: '13 June 2026',
     },
 
     /* ------------------ 6–9 MONTHS ------------------ */

@@ -61,7 +61,7 @@ const vaccines = [
   { name: "Influenza (IIV) – 1", weeks: 24, emoji: "🤧", category: "6 Months",    givenDate: "13 May 2026", },
 
   /* ------------------ 7 MONTHS ------------------ */
-  { name: "Influenza (IIV) – 2", weeks: 28, emoji: "🤧", category: "7 Months" },
+  { name: "Influenza (IIV) – 2", weeks: 28, emoji: "🤧", category: "7 Months",givenDate: '13 June 2026', },
 
   /* ------------------ 6–9 MONTHS ------------------ */
   { name: "Typhoid Conjugate Vaccine", weeks: 36, emoji: "🥼", category: "9 Months" },
