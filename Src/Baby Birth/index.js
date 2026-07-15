@@ -888,10 +888,11 @@ function VaccineTrackerScreen() {
       weeks: 37,
       emoji: '🥼',
       category: '9 Months',
+      givenDate: '15 July 2026',
     },
 
     /* ------------------ 9 MONTHS ------------------ */
-    {name: 'MMR – 1', weeks: 37, emoji: '😷', category: '9 Months'},
+    {name: 'MMR, IPV & PCV Booster', dueDate: '2026-08-02', weeks: 37, emoji: '😷', category: '9 Months'},
 
     /* ------------------ 12 MONTHS ------------------ */
     {name: 'Hepatitis A (Live)', weeks: 52, emoji: '🍽️', category: '12 Months'},
@@ -968,12 +969,14 @@ function VaccineTrackerScreen() {
     const upcomingVaccines = vaccines
       .filter(v => !v.givenDate)
       .map(v => {
-        const dueDate = new Date(BABY_BIRTHDATE);
-  
-        dueDate.setDate(
-          dueDate.getDate() + v.weeks * 7,
-        );
-  
+        const dueDate = v.dueDate
+          ? new Date(v.dueDate)
+          : (() => {
+              const d = new Date(BABY_BIRTHDATE);
+              d.setDate(d.getDate() + v.weeks * 7);
+              return d;
+            })();
+      
         return {
           ...v,
           dueDate,

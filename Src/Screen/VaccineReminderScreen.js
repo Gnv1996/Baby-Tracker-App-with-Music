@@ -64,10 +64,10 @@ const vaccines = [
   { name: "Influenza (IIV) – 2", weeks: 28, emoji: "🤧", category: "7 Months",givenDate: '13 June 2026', },
 
   /* ------------------ 6–9 MONTHS ------------------ */
-  { name: "Typhoid Conjugate Vaccine", weeks: 36, emoji: "🥼", category: "9 Months" },
+  { name: "Typhoid Conjugate Vaccine", weeks: 36, emoji: "🥼", category: "9 Months",givenDate: '15 July 2026' },
 
   /* ------------------ 9 MONTHS ------------------ */
-  { name: "MMR – 1", weeks: 36, emoji: "😷", category: "9 Months" },
+  { name: "MMR, IPV & PCV Booster", weeks: 36, emoji: "😷", category: "9 Months" },
 
   /* ------------------ 12 MONTHS ------------------ */
   { name: "Hepatitis A (Live)", weeks: 52, emoji: "🍽️", category: "12 Months" },
