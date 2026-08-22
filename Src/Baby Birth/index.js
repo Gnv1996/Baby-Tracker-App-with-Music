@@ -892,7 +892,7 @@ function VaccineTrackerScreen() {
     },
 
     /* ------------------ 9 MONTHS ------------------ */
-    {name: 'MMR, IPV & PCV Booster', dueDate: '2026-08-02', weeks: 37, emoji: '😷', category: '9 Months'},
+    {name: 'MMR, IPV & PCV Booster', dueDate: '2026-08-02', weeks: 37, emoji: '😷', category: '9 Months',givenDate: '2 Aug 2026',},
 
     /* ------------------ 12 MONTHS ------------------ */
     {name: 'Hepatitis A (Live)', weeks: 52, emoji: '🍽️', category: '12 Months'},
@@ -1051,66 +1051,57 @@ function VaccineTrackerScreen() {
        />
         )}
 
-<Modal transparent visible={modalVisible} animationType="slide">
-      <View style={styles.modalOverlay}>
-        <View style={[styles.cardContainer, { backgroundColor: COLORS.surface }]}>
-          
-          {/* Top Decorative Icon/Image Area */}
-          <View style={styles.iconCircle}>
-            <LinearGradient
-              colors={['#E0F2FE', '#BAE6FD']} // Soft Blue Gradients
-              style={styles.innerCircle}
-            >
-              <Icon name="baby-face-outline" size={50} color="#0284C7" />
-            </LinearGradient>
-          </View>
+<Modal transparent visible={modalVisible} animationType="fade">
+  <View style={styles.modalOverlay}>
+    <View style={styles.premiumModalCard}>
+      
+      {/* Top Decorative Gradient Header Banner */}
+      <LinearGradient
+        colors={['#0891B2', '#06B6D4', '#38BDF8']}
+        start={{x: 0, y: 0}}
+        end={{x: 1, y: 1}}
+        style={styles.modalHeaderBanner}>
+        <Text style={styles.bannerEmojiTop}>✨ 👑 ✨</Text>
+      </LinearGradient>
 
-         
-<Icon 
-  name="star-four-points" 
-  size={24} 
-  color="#F59E0B" 
-  style={styles.sparkleLeft} 
-/>
-
-<Icon 
-  name="star-four-points-outline" 
-  size={20} 
-  color="#F59E0B" 
-  style={styles.sparkleRight} 
-/>
-
-          <View style={styles.content}>
-            <Text style={styles.titleText}>New Prince Arrived!</Text>
-            <Text style={styles.modalSubText}>
-              Your blessings will fill his life with joy and prosperity.
-            </Text>
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={handleBlessed}
-              style={styles.buttonWrapper}
-            >
-              <LinearGradient
-                colors={['#0EA5E9', '#0284C7']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradientButton}
-              >
-                <Text style={styles.buttonText}>Give Blessings 🙏</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-               onPress={() => {/* Close Logic */}} 
-               style={styles.closeTextBtn}
-            >
-              <Text style={styles.maybeLater}>Maybe Later</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+      {/* Floating Baby Image Avatar with Glow */}
+      <View style={styles.modalImageContainer}>
+        <Image
+          source={require('../Assest/cute-baby.png')}
+          style={styles.modalImageAvatar}
+          resizeMode="cover"
+        />
       </View>
-    </Modal>
+
+      {/* Content Section */}
+      <View style={styles.modalBodyContent}>
+        <Text style={styles.modalBadgeText}>MONTHLY MILESTONE BLESSING</Text>
+        <Text style={styles.modalMainTitle}>Happy Prince Day! 🎉</Text>
+        
+        <Text style={styles.modalDescription}>
+          May Dhruv's smile grow brighter and his life be filled with boundless health, joy, and prosperity. 🙏💫
+        </Text>
+
+        {/* Action Button */}
+        <TouchableOpacity activeOpacity={0.85} onPress={handleBlessed} style={styles.modalButtonWrapper}>
+          <LinearGradient
+            colors={['#0F172A', '#DC2626']}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 0}}
+            style={styles.modalGradientButton}>
+            <Text style={styles.modalButtonText}>Give Blessings 💖</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        {/* Skip Option */}
+        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalDismissBtn}>
+          <Text style={styles.modalDismissText}>Remind Me Later</Text>
+        </TouchableOpacity>
+      </View>
+
+    </View>
+  </View>
+</Modal>
  
 
         <View style={styles.filterContainer}>
@@ -2010,5 +2001,131 @@ const styles = StyleSheet.create({
     bottom: 0,
     zIndex: 9999,        // Sabse upar dikhane ke liye
     elevation: 10,       // Android ke liye extra priority
+  },
+  iconCircle: {
+    marginTop: -40,
+    backgroundColor: '#FFF',
+    padding: 4,
+    borderRadius: 50,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  modalImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(5, 7, 15, 0.82)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 22,
+  },
+  premiumModalCard: {
+    width: '100%',
+    maxWidth: 330,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 36,
+    paddingBottom: 26,
+    alignItems: 'center',
+    overflow: 'hidden',
+    elevation: 25,
+    shadowColor: '#0891B2',
+    shadowOffset: {width: 0, height: 14},
+    shadowOpacity: 0.25,
+    shadowRadius: 24,
+  },
+  modalHeaderBanner: {
+    width: '100%',
+    height: 105,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopLeftRadius: 36,
+    borderTopRightRadius: 36,
+  },
+  bannerEmojiTop: {
+    fontSize: 22,
+    letterSpacing: 6,
+    marginTop: -10,
+  },
+  modalImageContainer: {
+    position: 'absolute',
+    top: 55,
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    backgroundColor: '#FFFFFF',
+    padding: 4,
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalImageAvatar: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+  },
+  modalBodyContent: {
+    alignItems: 'center',
+    width: '100%',
+    paddingHorizontal: 24,
+    paddingTop: 52, // Space for overlapping avatar
+  },
+  modalBadgeText: {
+    fontSize: 9.5,
+    fontWeight: '900',
+    color: '#0891B2',
+    letterSpacing: 2,
+    marginBottom: 6,
+  },
+  modalMainTitle: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#0F172A',
+    textAlign: 'center',
+    marginBottom: 10,
+    letterSpacing: -0.3,
+  },
+  modalDescription: {
+    fontSize: 13,
+    color: '#64748B',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 24,
+  },
+  modalButtonWrapper: {
+    width: '100%',
+    borderRadius: 18,
+    overflow: 'hidden',
+    elevation: 6,
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+  },
+  modalGradientButton: {
+    paddingVertical: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '900',
+    letterSpacing: 0.4,
+  },
+  modalDismissBtn: {
+    marginTop: 14,
+    paddingVertical: 4,
+  },
+  modalDismissText: {
+    color: '#94A3B8',
+    fontSize: 12.5,
+    fontWeight: '700',
   },
 });
