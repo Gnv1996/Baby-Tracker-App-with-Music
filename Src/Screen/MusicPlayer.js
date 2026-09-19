@@ -25,7 +25,7 @@ const { width } = Dimensions.get("window")
 
 const MusicPlayer = () => {
   const navigation = useNavigation()
-  const songs = ["dhan", "cm", "sohar", "news", "aawele"]
+  const songs = ["dhan", "cm", "sohar", "news", "aawele","baby"]
   const [songIndex, setSongIndex] = useState(0)
   const currentSong = songs[songIndex]
   const [imageUri, setImageUri] = useState(null)
@@ -129,6 +129,7 @@ const MusicPlayer = () => {
       pulseValue.setValue(1)
     }
   }, [isPlaying])
+
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
@@ -241,20 +242,15 @@ const MusicPlayer = () => {
     return `${minutes}:${secs < 10 ? "0" : ""}${secs}`
   }
 
+
+
+
+
   return (
     <LinearGradient colors={["#FF9A8B", "#FF6A88", "#FF99AC"]} style={styles.container}>
       <StatusBar backgroundColor="#FF6A88" barStyle="light-content" />
 
-      {/* Header */}
-      {/* <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Icon name="chevron-back" size={26} color="white" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Music Player</Text>
-        <TouchableOpacity style={styles.menuButton}>
-          <Icon name="ellipsis-vertical" size={22} color="white" />
-        </TouchableOpacity>
-      </View> */}
+   
 
       <View style={styles.timeContainer}>
         <Text style={styles.greetingText}>{greeting}</Text>

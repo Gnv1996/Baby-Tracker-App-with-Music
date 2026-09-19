@@ -19,8 +19,8 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import ConfettiCannon from 'react-native-confetti-cannon';
+import SoundPlayer from 'react-native-sound-player';
 
 const {width, height} = Dimensions.get('window');
 
@@ -80,7 +80,6 @@ function calculatePregnancyProgress(dueDate) {
 }
 
 // --- COMPONENTS ---
-
 function AgeCard() {
   const [today, setToday] = useState(new Date());
 
@@ -111,40 +110,29 @@ function AgeCard() {
 
   return (
     <View style={styles.ageCardContainer}>
-      
       {isAnnaprasanDay ? (
         /* ---------------- ANNAPRASHAN VIEW ---------------- */
         <LinearGradient
           colors={['#FF9933', '#FFCC33']}
           style={[styles.ageCard, styles.celebrationShadow]}>
-          
           <View style={styles.ceremonyContainer}>
-            <Text style={styles.annaprasanTitle}>
-              🥣 Annaprasan Sanskar 🥣
-            </Text>
-
+            <Text style={styles.annaprasanTitle}>🥣 Annaprasan Sanskar 🥣</Text>
             <View style={styles.goldDivider} />
-
             <Text style={styles.ceremonyMainText}>
               Dhruv's First Solid Meal!
             </Text>
-
             <Text style={styles.ceremonySubText}>
-              "May this first morsel of food bring health,
-              strength, and sweetness of life." ✨
+              "May this first morsel of food bring health, strength, and sweetness of life." ✨
             </Text>
-
             <View style={styles.ceremonyIconRow}>
               <View style={styles.ceremonyItem}>
                 <Text style={styles.ceremonyEmoji}>🍚</Text>
                 <Text style={styles.ceremonyLabel}>Rice</Text>
               </View>
-
               <View style={styles.ceremonyItem}>
                 <Text style={styles.ceremonyEmoji}>🥄</Text>
                 <Text style={styles.ceremonyLabel}>First Spoon</Text>
               </View>
-
               <View style={styles.ceremonyItem}>
                 <Text style={styles.ceremonyEmoji}>🙏</Text>
                 <Text style={styles.ceremonyLabel}>Blessings</Text>
@@ -153,228 +141,188 @@ function AgeCard() {
           </View>
         </LinearGradient>
       ) : isMonthlyBirthday ? (
-        /* ---------------- MONTHLY BIRTHDAY VIEW ---------------- */
-        <LinearGradient
-        colors={['#FF9A8B', '#FF6A88', '#FFB347']}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}
-        style={[
-          styles.ageCard,
-          styles.celebrationShadow,
-          {
-            overflow: 'hidden',
-            paddingVertical: 30,
-          },
-        ]}>
-      
-        {/* Floating Decorations */}
-        <Text
-          style={{
-            position: 'absolute',
-            top: 15,
-            left: 20,
-            fontSize: 26,
-            opacity: 0.25,
-          }}>
-          ✨
-        </Text>
-      
-        <Text
-          style={{
-            position: 'absolute',
-            top: 20,
-            right: 25,
-            fontSize: 24,
-            opacity: 0.25,
-          }}>
-          🎈
-        </Text>
-      
-        <Text
-          style={{
-            position: 'absolute',
-            bottom: 18,
-            left: 25,
-            fontSize: 24,
-            opacity: 0.2,
-          }}>
-          🎉
-        </Text>
-      
-        <View style={{alignItems: 'center'}}>
-      
-          {/* Crown Icon */}
-          <View
-            style={{
-              width: 80,
-              height: 80,
-              borderRadius: 40,
-              backgroundColor: 'rgba(255,255,255,0.18)',
-              justifyContent: 'center',
-              alignItems: 'center',
-              marginBottom: 18,
-              borderWidth: 2,
-              borderColor: 'rgba(255,255,255,0.3)',
-            }}>
-            <Text style={{fontSize: 42}}>👑</Text>
-          </View>
-      
-          {/* Main Heading */}
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: '900',
-              color: '#FFF',
-              marginBottom: 8,
-              letterSpacing: 0.8,
-              textAlign: 'center',
-            }}>
-            🎂 Happy Monthly Birthday 🎂
-          </Text>
-      
-          {/* Baby Name */}
-          <Text
-            style={{
-              fontSize: 22,
-              fontWeight: '800',
-              color: '#FFF8DC',
-              marginBottom: 10,
-            }}>
-            Dhruv Gautam
-          </Text>
-      
-          {/* Subtitle */}
-          <Text
-            style={{
-              fontSize: 14,
-              color: 'rgba(255,255,255,0.92)',
-              textAlign: 'center',
-              lineHeight: 22,
-              paddingHorizontal: 18,
-              marginBottom: 25,
-            }}>
-            🌟 Our little prince is growing with love, joy,
-            and endless blessings every month ✨
-          </Text>
-      
-          {/* Age Cards */}
-          <View
-            style={{
-              flexDirection: 'row',
+        /* ---------------- FULL PHOTO BG MONTHLY BIRTHDAY VIEW ---------------- */
+        <ImageBackground
+          source={require('../Assest/birth.jpeg')}
+          style={[
+            styles.ageCard,
+            styles.celebrationShadow,
+            {
+              overflow: 'hidden',
+              paddingVertical: 36,
+              paddingHorizontal: 16,
+              borderWidth: 2.5,
+              borderColor: '#FFD700',
+              minHeight: 500, // Card ko photo ke liye poori height di hai
               justifyContent: 'space-between',
-              width: '100%',
-            }}>
-            {units.map(({key, label, emoji}) => (
-              <View
-                key={key}
-                style={{
-                  alignItems: 'center',
-                  flex: 1,
-                }}>
-      
-                {/* Emoji Bubble */}
-                <View
-                  style={{
-                    width: 55,
-                    height: 55,
-                    borderRadius: 28,
-                    backgroundColor: 'rgba(255,255,255,0.2)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    marginBottom: 10,
-                  }}>
-                  <Text style={{fontSize: 26}}>{emoji}</Text>
-                </View>
-      
-                {/* Number Box */}
-                <LinearGradient
-                  colors={['#FFFFFF', '#FFF7ED']}
-                  style={{
-                    minWidth: 80,
-                    paddingVertical: 14,
-                    borderRadius: 22,
-                    alignItems: 'center',
-                    elevation: 6,
-                    shadowColor: '#000',
-                    shadowOpacity: 0.15,
-                    shadowRadius: 8,
-                    marginBottom: 8,
-                  }}>
-      
-                  <Text
-                    style={{
-                      fontSize: 30,
-                      fontWeight: '900',
-                      color: '#FF6A88',
-                    }}>
-                    {age[key]}
-                  </Text>
-                </LinearGradient>
-      
-                {/* Label */}
-                <Text
-                  style={{
-                    fontSize: 13,
-                    fontWeight: '700',
-                    color: '#FFF',
-                    letterSpacing: 0.5,
-                  }}>
-                  {label}
-                </Text>
-              </View>
-            ))}
-          </View>
-      
-          {/* Bottom Blessing */}
-          <View
-            style={{
-              marginTop: 28,
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              paddingHorizontal: 18,
-              paddingVertical: 10,
-              borderRadius: 20,
-              borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.2)',
-            }}>
+            },
+          ]}
+          imageStyle={{borderRadius: 26, resizeMode: 'cover'}}>
+          
+          {/* Gradient Dark Overlay taaki photo ke upar ke text ekdam crystal clear dikhein */}
+          <LinearGradient
+            colors={['rgba(0,0,0,0.6)', 'rgba(0,0,0,0.2)', 'rgba(0,0,0,0.75)']}
+            style={StyleSheet.absoluteFillObject}
+          />
+
+          {/* Top Section: Crown & Title */}
+          <View style={{alignItems: 'center', zIndex: 1}}>
+            <View
+              style={{
+                width: 68,
+                height: 68,
+                borderRadius: 34,
+                backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                marginBottom: 10,
+                borderWidth: 2,
+                borderColor: '#FFF8DC',
+                elevation: 8,
+              }}>
+              <Text style={{fontSize: 32}}>👑</Text>
+            </View>
+
             <Text
               style={{
-                color: '#FFF',
-                fontSize: 13,
-                fontWeight: '700',
+                fontSize: 24,
+                fontWeight: '900',
+                color: '#FFFFFF',
+                marginBottom: 4,
                 textAlign: 'center',
+                textShadowColor: 'rgba(0, 0, 0, 0.8)',
+                textShadowOffset: {width: 1, height: 2},
+                textShadowRadius: 6,
               }}>
-              💖 Stay Healthy • Happy • Blessed 💖
+              🎂 Happy Monthly Birthday 🎂
+            </Text>
+
+            <Text
+              style={{
+                fontSize: 22,
+                fontWeight: '900',
+                color: '#FFF8DC',
+                marginBottom: 4,
+                textShadowColor: 'rgba(0, 0, 0, 0.8)',
+                textShadowOffset: {width: 1, height: 2},
+                textShadowRadius: 6,
+              }}>
+              Dhruv Gautam
+            </Text>
+
+            <Text
+              style={{
+                fontSize: 13,
+                color: '#F1F5F9',
+                textAlign: 'center',
+                paddingHorizontal: 10,
+                fontWeight: '700',
+                textShadowColor: 'rgba(0, 0, 0, 0.8)',
+                textShadowOffset: {width: 1, height: 1},
+                textShadowRadius: 4,
+              }}>
+              🌟 Our little prince is growing with endless love ✨
             </Text>
           </View>
-        </View>
-      </LinearGradient>
+
+          {/* Bottom Section: Age Counters & Blessing */}
+          <View style={{zIndex: 1, marginTop: 15}}>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                width: '100%',
+                marginBottom: 15,
+              }}>
+              {units.map(({key, label, emoji}) => (
+                <View key={key} style={{alignItems: 'center', flex: 1}}>
+                  <View
+                    style={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: 20,
+                      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginBottom: 6,
+                    }}>
+                    <Text style={{fontSize: 18}}>{emoji}</Text>
+                  </View>
+
+                  <View
+                    style={{
+                      width: 75,
+                      paddingVertical: 10,
+                      borderRadius: 16,
+                      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                      alignItems: 'center',
+                      elevation: 6,
+                      marginBottom: 4,
+                    }}>
+                    <Text
+                      style={{
+                        fontSize: 24,
+                        fontWeight: '900',
+                        color: '#E11D48',
+                      }}>
+                      {age[key]}
+                    </Text>
+                  </View>
+
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '800',
+                      color: '#FFFFFF',
+                      textShadowColor: 'rgba(0, 0, 0, 0.8)',
+                      textShadowOffset: {width: 1, height: 1},
+                      textShadowRadius: 4,
+                    }}>
+                    {label}
+                  </Text>
+                </View>
+              ))}
+            </View>
+
+            {/* Bottom Glow Banner */}
+            <View
+              style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.55)',
+                paddingVertical: 8,
+                borderRadius: 20,
+                borderWidth: 1,
+                borderColor: 'rgba(255, 255, 255, 0.4)',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={{
+                  color: '#FFFFFF',
+                  fontSize: 12.5,
+                  fontWeight: '800',
+                  letterSpacing: 0.5,
+                }}>
+                💖 Stay Healthy • Happy • Blessed 💖
+              </Text>
+            </View>
+          </View>
+
+        </ImageBackground>
       ) : (
         /* ---------------- NORMAL VIEW ---------------- */
         <View style={styles.ageCard}>
           <View style={styles.ageCardHeaderRow}>
-            <Text style={styles.ageCardTitle}>
-              {BABY_NAME}'s Age
-            </Text>
-
-            <Text style={styles.ageCardPulse}>
-              ● Live
-            </Text>
+            <Text style={styles.ageCardTitle}>{BABY_NAME}'s Age</Text>
+            <Text style={styles.ageCardPulse}>● Live</Text>
           </View>
 
           <View style={styles.ageGrid}>
             {units.map(({key, label, emoji}) => (
               <View style={styles.ageItem} key={key}>
                 <Text style={styles.ageEmoji}>{emoji}</Text>
-
                 <View style={styles.ageValueBox}>
-                  <Text style={styles.ageValue}>
-                    {age[key]}
-                  </Text>
+                  <Text style={styles.ageValue}>{age[key]}</Text>
                 </View>
-
-                <Text style={styles.ageLabel}>
-                  {label}
-                </Text>
+                <Text style={styles.ageLabel}>{label}</Text>
               </View>
             ))}
           </View>
@@ -385,14 +333,11 @@ function AgeCard() {
 }
 
 function UpcomingInjectionCard({vaccine, scheduledDate}) {
-  const formattedDate = vaccine.dueDate.toLocaleDateString(
-    'en-US',
-    {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-    },
-  );
+  const formattedDate = vaccine.dueDate.toLocaleDateString('en-US', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  });
   return (
     <View style={styles.upcomingInjectionContainer}>
       <LinearGradient
@@ -423,16 +368,16 @@ function UpcomingInjectionCard({vaccine, scheduledDate}) {
 
           {/* Glass Date Box */}
           <View style={styles.glassDateBox}>
-  <Text style={styles.dueLabel}>DUE ON</Text>
+            <Text style={styles.dueLabel}>DUE ON</Text>
 
-  <Text style={styles.dueDateValue}>
-  {formattedDate.split(' ')[0]}
-</Text>
+            <Text style={styles.dueDateValue}>
+              {formattedDate.split(' ')[0]}
+            </Text>
 
-<Text style={styles.dueYearValue}>
-  {formattedDate.split(' ').slice(1).join(' ')}
-</Text>
-</View>
+            <Text style={styles.dueYearValue}>
+              {formattedDate.split(' ').slice(1).join(' ')}
+            </Text>
+          </View>
         </View>
 
         {/* Improved Footer */}
@@ -502,8 +447,6 @@ function MilkFeedingCard({feeding}) {
 }
 
 // --- SCREENS ---
-
-
 
 function PregnancyTrackerScreen() {
   const pregnancyData = calculatePregnancyProgress(PREGNANCY_DUE_DATE);
@@ -670,18 +613,30 @@ function VaccineTrackerScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [blastKey, setBlastKey] = useState(0);
 
-
-
   const today = new Date();
   const isCelebrationDay = today.getDate() === 2;
 
+  // 🎵 2 Tareekh ko automatic "baby" song play karne ka useEffect
+  useEffect(() => {
+    const checkAndPlayMonthlySong = async () => {
+      if (isCelebrationDay) {
+        try {
+          SoundPlayer.playSoundFile('baby', 'mp3');
+        } catch (e) {
+          console.log('Auto play error:', e);
+        }
+      }
+    };
+    checkAndPlayMonthlySong();
+  }, [isCelebrationDay]);
+
   useEffect(() => {
     if (!isCelebrationDay) return;
-  
+
     const interval = setInterval(() => {
       setBlastKey(prev => prev + 1); // 🔥 re-render cannon
     }, 4000); // 👉 2 second
-  
+
     return () => clearInterval(interval);
   }, [isCelebrationDay]);
 
@@ -869,8 +824,12 @@ function VaccineTrackerScreen() {
     },
 
     /* ------------------ 6 MONTHS ------------------ */
-    {name: 'Influenza (IIV) – 1', weeks: 24, emoji: '🤧', category: '6 Months',
-    givenDate: '13 May 2026',
+    {
+      name: 'Influenza (IIV) – 1',
+      weeks: 24,
+      emoji: '🤧',
+      category: '6 Months',
+      givenDate: '13 May 2026',
     },
 
     /* ------------------ 7 MONTHS ------------------ */
@@ -892,7 +851,14 @@ function VaccineTrackerScreen() {
     },
 
     /* ------------------ 9 MONTHS ------------------ */
-    {name: 'MMR, IPV & PCV Booster', dueDate: '2026-08-02', weeks: 37, emoji: '😷', category: '9 Months',givenDate: '2 Aug 2026',},
+    {
+      name: 'MMR, IPV & PCV Booster',
+      dueDate: '2026-08-02',
+      weeks: 37,
+      emoji: '😷',
+      category: '9 Months',
+      givenDate: '2 Aug 2026',
+    },
 
     /* ------------------ 12 MONTHS ------------------ */
     {name: 'Hepatitis A (Live)', weeks: 52, emoji: '🍽️', category: '12 Months'},
@@ -962,10 +928,9 @@ function VaccineTrackerScreen() {
     day: 'numeric',
   });
 
-
   const nextUpcomingVaccine = useMemo(() => {
     const today = new Date();
-  
+
     const upcomingVaccines = vaccines
       .filter(v => !v.givenDate)
       .map(v => {
@@ -976,44 +941,51 @@ function VaccineTrackerScreen() {
               d.setDate(d.getDate() + v.weeks * 7);
               return d;
             })();
-      
+
         return {
           ...v,
           dueDate,
         };
       })
       .sort((a, b) => a.dueDate - b.dueDate);
-  
-    const next = upcomingVaccines.find(
-      v => v.dueDate >= today,
-    );
-  
+
+    const next = upcomingVaccines.find(v => v.dueDate >= today);
+
     return next || upcomingVaccines[0];
   }, []);
 
   return (
     <View style={styles.screenContainer}>
-
-{isCelebrationDay && (
-  <View style={styles.flowerRainOverlay} pointerEvents="none">
-    <ConfettiCannon
-      key={blastKey}
-      count={30}
-      origin={{ x: width / 2, y: 0 }}
-      autoStart
-      fadeOut
-      fallSpeed={4000}
-      explosionSpeed={250}
-      customElements={[
-        <Text key="1" style={{ fontSize: 30 }}>🌸</Text>,
-        <Text key="2" style={{ fontSize: 28 }}>🌹</Text>,
-        <Text key="3" style={{ fontSize: 30 }}>🌻</Text>,
-        <Text key="4" style={{ fontSize: 26 }}>🌼</Text>,
-        <Text key="5" style={{ fontSize: 28 }}>🌺</Text>,
-      ]}
-    />
-  </View>
-)}
+      {isCelebrationDay && (
+        <View style={styles.flowerRainOverlay} pointerEvents="none">
+          <ConfettiCannon
+            key={blastKey}
+            count={30}
+            origin={{x: width / 2, y: 0}}
+            autoStart
+            fadeOut
+            fallSpeed={4000}
+            explosionSpeed={250}
+            customElements={[
+              <Text key="1" style={{fontSize: 30}}>
+                🌸
+              </Text>,
+              <Text key="2" style={{fontSize: 28}}>
+                🌹
+              </Text>,
+              <Text key="3" style={{fontSize: 30}}>
+                🌻
+              </Text>,
+              <Text key="4" style={{fontSize: 26}}>
+                🌼
+              </Text>,
+              <Text key="5" style={{fontSize: 28}}>
+                🌺
+              </Text>,
+            ]}
+          />
+        </View>
+      )}
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollView}>
@@ -1045,64 +1017,68 @@ function VaccineTrackerScreen() {
         <AgeCard />
 
         {nextUpcomingVaccine && (
-         <UpcomingInjectionCard
-         vaccine={nextUpcomingVaccine}
-    
-       />
+          <UpcomingInjectionCard vaccine={nextUpcomingVaccine} />
         )}
 
-<Modal transparent visible={modalVisible} animationType="fade">
-  <View style={styles.modalOverlay}>
-    <View style={styles.premiumModalCard}>
-      
-      {/* Top Decorative Gradient Header Banner */}
-      <LinearGradient
-        colors={['#0891B2', '#06B6D4', '#38BDF8']}
-        start={{x: 0, y: 0}}
-        end={{x: 1, y: 1}}
-        style={styles.modalHeaderBanner}>
-        <Text style={styles.bannerEmojiTop}>✨ 👑 ✨</Text>
-      </LinearGradient>
+        <Modal transparent visible={modalVisible} animationType="fade">
+          <View style={styles.modalOverlay}>
+            <View style={styles.premiumModalCard}>
+              {/* Top Decorative Gradient Header Banner */}
+              <LinearGradient
+                colors={['#0891B2', '#06B6D4', '#38BDF8']}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+                style={styles.modalHeaderBanner}>
+                <Text style={styles.bannerEmojiTop}>✨ 👑 ✨</Text>
+              </LinearGradient>
 
-      {/* Floating Baby Image Avatar with Glow */}
-      <View style={styles.modalImageContainer}>
-        <Image
-          source={require('../Assest/cute-baby.png')}
-          style={styles.modalImageAvatar}
-          resizeMode="cover"
-        />
-      </View>
+              {/* Floating Baby Image Avatar with Glow */}
+              <View style={styles.modalImageContainer}>
+                <Image
+                  source={require('../Assest/cute-baby.png')}
+                  style={styles.modalImageAvatar}
+                  resizeMode="cover"
+                />
+              </View>
 
-      {/* Content Section */}
-      <View style={styles.modalBodyContent}>
-        <Text style={styles.modalBadgeText}>MONTHLY MILESTONE BLESSING</Text>
-        <Text style={styles.modalMainTitle}>Happy Prince Day! 🎉</Text>
-        
-        <Text style={styles.modalDescription}>
-          May Dhruv's smile grow brighter and his life be filled with boundless health, joy, and prosperity. 🙏💫
-        </Text>
+              {/* Content Section */}
+              <View style={styles.modalBodyContent}>
+                <Text style={styles.modalBadgeText}>
+                  MONTHLY MILESTONE BLESSING
+                </Text>
+                <Text style={styles.modalMainTitle}>Happy Prince Day! 🎉</Text>
 
-        {/* Action Button */}
-        <TouchableOpacity activeOpacity={0.85} onPress={handleBlessed} style={styles.modalButtonWrapper}>
-          <LinearGradient
-            colors={['#0F172A', '#DC2626']}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 0}}
-            style={styles.modalGradientButton}>
-            <Text style={styles.modalButtonText}>Give Blessings 💖</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+                <Text style={styles.modalDescription}>
+                  May Dhruv's smile grow brighter and his life be filled with
+                  boundless health, joy, and prosperity. 🙏💫
+                </Text>
 
-        {/* Skip Option */}
-        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.modalDismissBtn}>
-          <Text style={styles.modalDismissText}>Remind Me Later</Text>
-        </TouchableOpacity>
-      </View>
+                {/* Action Button */}
+                <TouchableOpacity
+                  activeOpacity={0.85}
+                  onPress={handleBlessed}
+                  style={styles.modalButtonWrapper}>
+                  <LinearGradient
+                    colors={['#0F172A', '#DC2626']}
+                    start={{x: 0, y: 0}}
+                    end={{x: 1, y: 0}}
+                    style={styles.modalGradientButton}>
+                    <Text style={styles.modalButtonText}>
+                      Give Blessings 💖
+                    </Text>
+                  </LinearGradient>
+                </TouchableOpacity>
 
-    </View>
-  </View>
-</Modal>
- 
+                {/* Skip Option */}
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={styles.modalDismissBtn}>
+                  <Text style={styles.modalDismissText}>Remind Me Later</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
 
         <View style={styles.filterContainer}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
@@ -1335,7 +1311,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
   },
-  ageValue: {fontSize: 28, fontWeight: '900', color: COLORS.primary, letterSpacing: -0.5},
+  ageValue: {
+    fontSize: 28,
+    fontWeight: '900',
+    color: COLORS.primary,
+    letterSpacing: -0.5,
+  },
   ageLabel: {fontSize: 12, color: COLORS.textSecondary, fontWeight: '600'},
   // NEXT UP CARD STYLES (NEW)
   upcomingInjectionContainer: {
@@ -1455,7 +1436,12 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
   },
   statEmoji: {fontSize: 32},
-  statValue: {fontSize: 22, fontWeight: '800', color: COLORS.text, letterSpacing: -0.3},
+  statValue: {
+    fontSize: 22,
+    fontWeight: '800',
+    color: COLORS.text,
+    letterSpacing: -0.3,
+  },
   statLabel: {fontSize: 13, color: COLORS.textSecondary, fontWeight: '700'},
   addButton: {
     marginHorizontal: 16,
@@ -1472,7 +1458,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  addButtonText: {fontSize: 17, fontWeight: '900', color: COLORS.surface, letterSpacing: -0.3},
+  addButtonText: {
+    fontSize: 17,
+    fontWeight: '900',
+    color: COLORS.surface,
+    letterSpacing: -0.3,
+  },
   historySection: {paddingHorizontal: 16, paddingBottom: 18},
   sectionTitle: {
     fontSize: 18,
@@ -1511,8 +1502,18 @@ const styles = StyleSheet.create({
   },
   feedingIcon: {fontSize: 28},
   feedingInfo: {flex: 1},
-  feedingType: {fontSize: 15, fontWeight: '800', color: COLORS.text, letterSpacing: -0.2},
-  feedingTime: {fontSize: 13, color: COLORS.textSecondary, marginTop: 4, fontWeight: '500'},
+  feedingType: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: COLORS.text,
+    letterSpacing: -0.2,
+  },
+  feedingTime: {
+    fontSize: 13,
+    color: COLORS.textSecondary,
+    marginTop: 4,
+    fontWeight: '500',
+  },
   feedingAmount: {gap: 6},
   feedingBadge: {
     backgroundColor: COLORS.surface,
@@ -1591,7 +1592,11 @@ const styles = StyleSheet.create({
   },
   modalButtons: {flexDirection: 'row', gap: 14, marginTop: 28},
   modalButton: {flex: 1, overflow: 'hidden', borderRadius: 16},
-  cancelButton: {backgroundColor: COLORS.background, borderWidth: 2, borderColor: COLORS.border},
+  cancelButton: {
+    backgroundColor: COLORS.background,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+  },
   cancelButtonText: {
     paddingVertical: 18,
     textAlign: 'center',
@@ -1602,7 +1607,12 @@ const styles = StyleSheet.create({
   },
   saveButton: {overflow: 'hidden', borderRadius: 16},
   saveButtonGradient: {paddingVertical: 18, alignItems: 'center'},
-  saveButtonText: {fontSize: 15, fontWeight: '900', color: COLORS.surface, letterSpacing: -0.2},
+  saveButtonText: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: COLORS.surface,
+    letterSpacing: -0.2,
+  },
   headerGradient: {
     height: 300,
     width: '100%',
@@ -1667,7 +1677,12 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     letterSpacing: -0.4,
   },
-  pregnancyWeek: {fontSize: 24, fontWeight: '900', color: COLORS.surface, letterSpacing: -0.3},
+  pregnancyWeek: {
+    fontSize: 24,
+    fontWeight: '900',
+    color: COLORS.surface,
+    letterSpacing: -0.3,
+  },
   pregnancyDays: {
     fontSize: 15,
     color: COLORS.surface,
@@ -1682,7 +1697,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 14,
   },
-  progressLabel: {fontSize: 16, fontWeight: '800', color: COLORS.text, letterSpacing: -0.2},
+  progressLabel: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: COLORS.text,
+    letterSpacing: -0.2,
+  },
   progressPercent: {fontSize: 20, fontWeight: '900', color: COLORS.primary},
   progressBarContainer: {
     height: 14,
@@ -1769,7 +1789,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     elevation: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
+    shadowOffset: {width: 0, height: 10},
     shadowOpacity: 0.3,
     shadowRadius: 20,
   },
@@ -1824,10 +1844,10 @@ const styles = StyleSheet.create({
     fontWeight: '800',
     letterSpacing: 0.5,
   },
-  sparkleLeft: { position: 'absolute', top: 60, left: 40 },
-  sparkleRight: { position: 'absolute', top: 20, right: 40 },
-  closeTextBtn: { marginTop: 15 },
-  maybeLater: { color: '#94A3B8', fontSize: 13, fontWeight: '600' },
+  sparkleLeft: {position: 'absolute', top: 60, left: 40},
+  sparkleRight: {position: 'absolute', top: 20, right: 40},
+  closeTextBtn: {marginTop: 15},
+  maybeLater: {color: '#94A3B8', fontSize: 13, fontWeight: '600'},
   gradientBlessed: {
     paddingVertical: 18,
     alignItems: 'center',
@@ -1999,8 +2019,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    zIndex: 9999,        // Sabse upar dikhane ke liye
-    elevation: 10,       // Android ke liye extra priority
+    zIndex: 9999, // Sabse upar dikhane ke liye
+    elevation: 10, // Android ke liye extra priority
   },
   iconCircle: {
     marginTop: -40,
