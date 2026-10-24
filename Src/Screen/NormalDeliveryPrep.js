@@ -7,9 +7,14 @@ import {
   StyleSheet,
   SafeAreaView,
   Dimensions,
-  Animated,StatusBar
+  Animated,
+  StatusBar,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import BottomNavigation from './bottom-navigation';
 
 const { width } = Dimensions.get('window');
 
@@ -51,6 +56,12 @@ const NormalDeliveryPrep = ({
   nextAppointment = '09 October',
   babyPosition = null,
 }) => {
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+  const topSafe = Math.max(
+    insets.top,
+    Platform.OS === 'android' ? (StatusBar.currentHeight || 28) : 44
+  ) + 8;
   const getPregnancyWeek = () => {
     const lmpDate = new Date(2025, 1, 18); // 18 Feb 2025
     const today = new Date();
@@ -103,7 +114,13 @@ const babyBorn = today >= deliveryDate;
           <StatusBar backgroundColor="#FF9E9E" barStyle="dark-content" />
       {/* Enhanced Header with Gradient Effect */}
       <View style={styles.headerContainer}>
-        <View style={styles.headerGradient}>
+        <View style={[styles.headerGradient, { paddingTop: topSafe + 8 }]}>
+          <TouchableOpacity
+            onPress={() => navigation.goBack()}
+            style={[styles.backButton, { top: topSafe }]}
+            activeOpacity={0.7}>
+            <Ionicons name="arrow-back" size={22} color="#FFF" />
+          </TouchableOpacity>
           <View style={styles.headerContent}>
             <Text style={styles.title}>🌱🤰 Pregnancy Journey</Text>
             <Text style={styles.subtitle}>Normal Delivery Prep Tracker</Text>
@@ -289,7 +306,10 @@ const babyBorn = today >= deliveryDate;
             Every day brings you closer to meeting your little one. Keep up the amazing work! 💕
           </Text>
         </View>
+        <View style={{ height: 85 }} />
       </ScrollView>
+
+      <BottomNavigation currentScreen="NormalDelivery" navigation={navigation} />
     </SafeAreaView>
   );
 };
@@ -305,7 +325,7 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     backgroundColor: '#FF9E9E',
-    paddingTop: 20,
+    paddingTop: 16,
     paddingBottom: 40,
     borderBottomLeftRadius: 35,
     borderBottomRightRadius: 35,
@@ -314,7 +334,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 15,
     elevation: 10,
-    // marginTop:23
+  },
+  backButton: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    zIndex: 10,
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: 'rgba(255, 255, 255, 0.25)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerContent: {
     paddingHorizontal: 10,

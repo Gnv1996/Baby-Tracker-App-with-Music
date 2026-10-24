@@ -446,6 +446,109 @@ function MilkFeedingCard({feeding}) {
   );
 }
 
+function MilkTrackerScreen() {
+  const navigation = useNavigation();
+  const [feedings] = useState([
+    {
+      id: 1,
+      type: 'breast',
+      time: new Date(Date.now() - 1000 * 60 * 90),
+      duration: 15,
+      volume: 0,
+    },
+    {
+      id: 2,
+      type: 'formula',
+      time: new Date(Date.now() - 1000 * 60 * 240),
+      duration: 20,
+      volume: 120,
+    },
+    {
+      id: 3,
+      type: 'breast',
+      time: new Date(Date.now() - 1000 * 60 * 420),
+      duration: 18,
+      volume: 0,
+    },
+  ]);
+
+  return (
+    <View style={styles.screenContainer}>
+      <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
+        <LinearGradient
+          colors={['#06B6D4', '#22D3EE']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.pregnancyHeader}>
+          <View style={styles.pregnancyHeaderContent}>
+            <Text style={styles.pregnancyHeaderEmoji}>🍼</Text>
+            <Text style={styles.pregnancyHeaderTitle}>Baby Feeding & Meals</Text>
+            <Text style={styles.pregnancyWeek}>Solid Food Start: 2 May 2026</Text>
+            <Text style={styles.pregnancyDays}>Completes 6 Months Milestone 💚</Text>
+          </View>
+        </LinearGradient>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Babyfood')}
+          activeOpacity={0.85}
+          style={{
+            marginHorizontal: 16,
+            marginTop: 14,
+            borderRadius: 20,
+            overflow: 'hidden',
+            elevation: 4,
+          }}>
+          <LinearGradient
+            colors={['#ECFDF5', '#D1FAE5']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={{ padding: 18, flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: 11,
+                  fontWeight: '800',
+                  color: '#059669',
+                  letterSpacing: 0.8,
+                }}>
+                🥣 COMPREHENSIVE NUTRITION GUIDE
+              </Text>
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: '800',
+                  color: '#065F46',
+                  marginTop: 4,
+                }}>
+                Teething Relief & Food Planner
+              </Text>
+              <Text style={{ fontSize: 12, color: '#047857', marginTop: 2 }}>
+                What to feed, soothing tips & safe foods guide
+              </Text>
+            </View>
+            <Text style={{ fontSize: 32, marginLeft: 8 }}>🍌</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+
+        <View style={{ paddingHorizontal: 16, marginTop: 20, paddingBottom: 90 }}>
+          <Text
+            style={{
+              fontSize: 18,
+              fontWeight: '800',
+              color: COLORS.text,
+              marginBottom: 12,
+            }}>
+            Today's Feeding Schedule
+          </Text>
+          {feedings.map(feeding => (
+            <MilkFeedingCard key={feeding.id} feeding={feeding} />
+          ))}
+        </View>
+      </ScrollView>
+    </View>
+  );
+}
+
 // --- SCREENS ---
 
 function PregnancyTrackerScreen() {
@@ -609,6 +712,7 @@ function PregnancyTrackerScreen() {
 }
 
 function VaccineTrackerScreen() {
+  const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [modalVisible, setModalVisible] = useState(false);
   const [blastKey, setBlastKey] = useState(0);
@@ -664,7 +768,8 @@ function VaccineTrackerScreen() {
     }
   };
 
-  const vaccines = [
+  const vaccines = useMemo(
+    () => [
     /* ------------------ BIRTH ------------------ */
     {
       name: 'BCG',
@@ -900,7 +1005,7 @@ function VaccineTrackerScreen() {
     /* ------------------ 10–12 YEARS ------------------ */
     {name: 'Tdap', weeks: 520, emoji: '💪', category: '10–12 Years'},
     {name: 'HPV', weeks: 520, emoji: '🛡️', category: '10–12 Years'},
-  ];
+  ], []);
 
   const categories = [
     'All',
@@ -952,7 +1057,7 @@ function VaccineTrackerScreen() {
     const next = upcomingVaccines.find(v => v.dueDate >= today);
 
     return next || upcomingVaccines[0];
-  }, []);
+  }, [vaccines]);
 
   return (
     <View style={styles.screenContainer}>
@@ -1010,6 +1115,73 @@ function VaccineTrackerScreen() {
               <Text style={styles.babyBlessing}>
                 Healthy • Happy • Loved 💫
               </Text>
+
+              {/* Quick Navigation Action Chips */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  gap: 8,
+                  marginTop: 14,
+                  flexWrap: 'wrap',
+                  justifyContent: 'center',
+                }}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Home')}
+                  activeOpacity={0.8}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.24)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.4)',
+                  }}>
+                  <Text style={{ fontSize: 13, marginRight: 5 }}>🤰</Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>
+                    Pregnancy Mode
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Play')}
+                  activeOpacity={0.8}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.24)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.4)',
+                  }}>
+                  <Text style={{ fontSize: 13, marginRight: 5 }}>🎵</Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>
+                    Lullabies
+                  </Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={() => navigation.navigate('Onboarding')}
+                  activeOpacity={0.8}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.24)',
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    borderRadius: 16,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.4)',
+                  }}>
+                  <Text style={{ fontSize: 13, marginRight: 5 }}>✨</Text>
+                  <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>
+                    App Tour
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </LinearGradient>
         </ImageBackground>
@@ -1187,7 +1359,7 @@ export default function BabyHealthApp() {
         {activeTab === 'pregnancy' && <PregnancyTrackerScreen />}
         {activeTab === 'activity' && <PregnancyTrackerScreen />}
 
-        <View style={[styles.footer, {bottom: 90}]}>
+        <View style={styles.footer}>
           <TouchableOpacity
             style={styles.playMusicButton}
             onPress={() => navigation.navigate('Play')}>
@@ -1239,7 +1411,7 @@ export default function BabyHealthApp() {
 const styles = StyleSheet.create({
   safeArea: {flex: 1, backgroundColor: COLORS.background},
   screenContainer: {flex: 1, backgroundColor: COLORS.background},
-  container: {flex: 1, paddingBottom: 75},
+  container: {flex: 1, paddingBottom: 88},
   scrollView: {flex: 1, paddingHorizontal: 0},
   headerSection: {
     paddingHorizontal: 20,
@@ -1298,7 +1470,7 @@ const styles = StyleSheet.create({
   ageItem: {alignItems: 'center', gap: 8},
   ageEmoji: {fontSize: 32},
   ageValueBox: {
-    backgroundColor: 'linear-gradient(135deg, #ECFDF5 0%, #E0F2FE 100%)',
+    backgroundColor: '#F0FDF4',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 16,
@@ -1909,34 +2081,43 @@ const styles = StyleSheet.create({
   },
   tabNavigation: {
     flexDirection: 'row',
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-    elevation: 20,
+    elevation: 16,
     position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    height: 85,
-    paddingBottom: 10,
-    paddingHorizontal: 10,
+    bottom: Platform.OS === 'ios' ? 24 : 12,
+    left: 14,
+    right: 14,
+    height: 66,
+    borderRadius: 33,
+    paddingHorizontal: 8,
+    backgroundColor: 'rgba(255, 255, 255, 0.96)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(14, 165, 233, 0.25)',
+    shadowColor: '#0EA5E9',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.16,
+    shadowRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'space-around',
   },
   tabButton: {flex: 1, justifyContent: 'center', alignItems: 'center'},
   tabButtonGradient: {
     flex: 1,
-    width: '100%',
+    width: '92%',
+    height: '84%',
     justifyContent: 'center',
     alignItems: 'center',
-    borderRadius: 20,
-    marginHorizontal: 4,
-    marginVertical: 8,
+    borderRadius: 22,
+    marginHorizontal: 3,
   },
-  tabButtonEmoji: {fontSize: 24, marginBottom: 4},
-  tabButtonText: {fontSize: 10, fontWeight: '800', color: COLORS.textSecondary},
-  tabButtonTextActive: {color: COLORS.surface, fontSize: 11},
+  tabButtonEmoji: {fontSize: 18, marginBottom: 2},
+  tabButtonText: {fontSize: 9.5, fontWeight: '700', color: COLORS.textSecondary},
+  tabButtonTextActive: {color: COLORS.surface, fontSize: 10, fontWeight: '800'},
   footer: {
     position: 'absolute',
     alignItems: 'center',
     width: '100%',
     zIndex: 10,
+    bottom: Platform.OS === 'ios' ? 98 : 86,
   },
   playMusicButton: {
     width: 64,
@@ -2022,27 +2203,10 @@ const styles = StyleSheet.create({
     zIndex: 9999, // Sabse upar dikhane ke liye
     elevation: 10, // Android ke liye extra priority
   },
-  iconCircle: {
-    marginTop: -40,
-    backgroundColor: '#FFF',
-    padding: 4,
-    borderRadius: 50,
-    elevation: 6,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-  },
   modalImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(5, 7, 15, 0.82)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 22,
   },
   premiumModalCard: {
     width: '100%',

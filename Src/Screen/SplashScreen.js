@@ -8,14 +8,15 @@ import {
   Image,
   Dimensions,
   Platform,
-  StatusBar
+  StatusBar,
+  TouchableOpacity,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
 const { width, height } = Dimensions.get('window');
 
 /**
- * REFINED BOKEH ORBS 
+ * REFINED BOKEH ORBS
  * Simulates high-end camera bokeh with soft-focus movement
  */
 const BokehOrb = ({ delay, duration, size, top, left, right, color = '#FFF' }) => {
@@ -23,7 +24,7 @@ const BokehOrb = ({ delay, duration, size, top, left, right, color = '#FFF' }) =
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.sequence([
+    const anim = Animated.sequence([
       Animated.delay(delay),
       Animated.timing(fadeAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
       Animated.parallel([
@@ -31,23 +32,30 @@ const BokehOrb = ({ delay, duration, size, top, left, right, color = '#FFF' }) =
           Animated.sequence([
             Animated.timing(moveAnim.y, { toValue: -40, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
             Animated.timing(moveAnim.y, { toValue: 0, duration, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          ])
+          ]),
         ),
         Animated.loop(
           Animated.sequence([
             Animated.timing(moveAnim.x, { toValue: 20, duration: duration * 1.2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
             Animated.timing(moveAnim.x, { toValue: 0, duration: duration * 1.2, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-          ])
+          ]),
         ),
       ]),
-    ]).start();
-  }, []);
+    ]);
+    anim.start();
+
+    return () => {
+      anim.stop();
+    };
+  }, [delay, duration, fadeAnim, moveAnim.x, moveAnim.y]);
 
   return (
     <Animated.View
       style={{
         position: 'absolute',
-        top, left, right,
+        top,
+        left,
+        right,
         opacity: fadeAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 0.35] }),
         transform: [{ translateX: moveAnim.x }, { translateY: moveAnim.y }],
       }}
@@ -67,12 +75,13 @@ const SplashScreen = ({ navigation }) => {
 
   useEffect(() => {
     // 1. Aura Pulsing
-    Animated.loop(
+    const auraLoop = Animated.loop(
       Animated.sequence([
         Animated.timing(auraScale, { toValue: 1.15, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
         Animated.timing(auraScale, { toValue: 1, duration: 2500, easing: Easing.inOut(Easing.sin), useNativeDriver: true }),
-      ])
-    ).start();
+      ]),
+    );
+    auraLoop.start();
 
     // 2. Entrance Sequence
     Animated.parallel([
@@ -81,24 +90,33 @@ const SplashScreen = ({ navigation }) => {
     ]).start();
 
     // 3. Staggered Text Reveal
-    Animated.delay(1000).start(() => {
+    const textTimer = setTimeout(() => {
       Animated.parallel([
         Animated.timing(textOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
         Animated.timing(textTranslateY, { toValue: 0, duration: 1200, easing: Easing.out(Easing.back(1.5)), useNativeDriver: true }),
       ]).start();
-    });
+    }, 1000);
 
-    const timer = setTimeout(() => {
-      navigation.replace('MyBaby');
-    }, 5000);
+    // 4. Always navigate to Onboarding on start
+    const navTimer = setTimeout(() => {
+      navigation.replace('Onboarding');
+    }, 3500);
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => {
+      auraLoop.stop();
+      clearTimeout(textTimer);
+      clearTimeout(navTimer);
+    };
+  }, [auraScale, logoOpacity, logoScale, navigation, textOpacity, textTranslateY]);
+
+  const handleInstantSkip = () => {
+    navigation.replace('Onboarding');
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
-      
+
       {/* Soft Multi-Tone Gradient */}
       <LinearGradient
         colors={['#FFFBFC', '#FFF0F5', '#F5FAFF']}
@@ -113,7 +131,6 @@ const SplashScreen = ({ navigation }) => {
       <BokehOrb size={60} top={height * 0.4} left={width * 0.05} color="#FCE4EC" delay={1200} duration={3000} />
 
       <View style={styles.contentContainer}>
-        
         {/* Triple Halo Glow System */}
         <Animated.View style={[styles.haloContainer, { transform: [{ scale: auraScale }] }]}>
           <View style={styles.auraOuter} />
@@ -129,21 +146,24 @@ const SplashScreen = ({ navigation }) => {
         <Animated.View style={{ opacity: textOpacity, transform: [{ translateY: textTranslateY }], alignItems: 'center' }}>
           <Text style={styles.brandTitle}>JOURNEY</Text>
           <View style={styles.styleLine} />
-          
+
           <Text style={styles.welcomeText}>Welcome, Nici’s Baby Boy! 👶</Text>
-          
+
           <View style={styles.loveLineContainer}>
             <Text style={styles.loveLineText}>— Papa & Mammy love you forever —</Text>
           </View>
         </Animated.View>
-
       </View>
 
-      {/* Elegant Footer */}
+      {/* Elegant Footer with Skip Action */}
       <Animated.View style={[styles.footer, { opacity: textOpacity }]}>
-        <View style={styles.iconBox}>
-          <Text style={{ fontSize: 16 }}>💝</Text>
-        </View>
+        <TouchableOpacity
+          onPress={handleInstantSkip}
+          activeOpacity={0.7}
+          style={styles.skipPill}
+        >
+          <Text style={styles.skipPillText}>Enter App ✨</Text>
+        </TouchableOpacity>
         <Text style={styles.footerNote}>CREATED WITH PURE LOVE</Text>
       </Animated.View>
     </View>
@@ -154,12 +174,12 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF' },
   orbBase: { shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10 },
   contentContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 40 },
-  
+
   // Aura Styles
   haloContainer: { position: 'absolute', justifyContent: 'center', alignItems: 'center' },
   auraOuter: { width: 320, height: 320, borderRadius: 160, backgroundColor: '#FF8AAB', opacity: 0.1 },
   auraMiddle: { position: 'absolute', width: 240, height: 240, borderRadius: 120, backgroundColor: '#FF8AAB', opacity: 0.15 },
-  
+
   // Image Frame Styles
   imageFrame: {
     padding: 10,
@@ -173,7 +193,7 @@ const styles = StyleSheet.create({
     shadowRadius: 25,
   },
   babyLogo: { width: 170, height: 170, borderRadius: 85, borderWidth: 5, borderColor: '#FFF' },
-  
+
   // Typography
   brandTitle: {
     fontSize: 48,
@@ -190,13 +210,13 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     letterSpacing: 0.5,
     marginBottom: 10,
-    textAlign: 'center'
+    textAlign: 'center',
   },
-  loveLineContainer: { 
-    paddingHorizontal: 20, 
-    paddingVertical: 8, 
-    borderRadius: 20, 
-    backgroundColor: 'rgba(255, 138, 171, 0.08)' 
+  loveLineContainer: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 138, 171, 0.08)',
   },
   loveLineText: {
     fontSize: 14,
@@ -207,18 +227,26 @@ const styles = StyleSheet.create({
   },
 
   // Footer
-  footer: { position: 'absolute', bottom: 60, alignSelf: 'center', alignItems: 'center' },
-  iconBox: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#FFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
+  footer: { position: 'absolute', bottom: 48, alignSelf: 'center', alignItems: 'center' },
+  skipPill: {
+    paddingHorizontal: 20,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.85)',
+    borderWidth: 1,
+    borderColor: '#FFD1DC',
+    marginBottom: 12,
+    elevation: 3,
+    shadowColor: '#FF6B8B',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 5,
-    marginBottom: 10,
+    shadowRadius: 4,
+  },
+  skipPillText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#FF6B8B',
+    letterSpacing: 0.5,
   },
   footerNote: {
     fontSize: 10,

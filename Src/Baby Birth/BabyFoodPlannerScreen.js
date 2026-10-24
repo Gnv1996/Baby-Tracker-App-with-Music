@@ -8,7 +8,11 @@ import {
   SafeAreaView,
   StatusBar,
   Dimensions,
+  TouchableOpacity,
+  Platform,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
@@ -34,21 +38,37 @@ const WHAT_ELSE_TO_DO = [
   { id: '3', title: 'बच्चे को प्यार और आराम दें।', img: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=200&q=80' },
 ];
 
-export default function App() {
+export default function BabyFoodPlannerScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
+  const topSafe = Math.max(
+    insets.top,
+    Platform.OS === 'android' ? (StatusBar.currentHeight || 28) : 44
+  ) + 8;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" backgroundColor="#FA8072" />
 
       {/* ================= HERO BANNER WITH RE-POLISHED CONTENT ================= */}
-      <View style={styles.heroContainer}>
+      <View style={[styles.heroContainer, { height: 380 + insets.top }]}>
         <Image
-  source={require('../Assest/maa.jpeg')}
-          style={styles.heroImage}
+          source={require('../Assest/maa.jpeg')}
+          style={[styles.heroImage, { height: 380 + insets.top }]}
           resizeMode="cover"
         />
-        <View style={styles.heroOverlay}>
+
+        {/* Floating Top Back Button Safely Positioned Below Clock/Status Bar */}
+        <TouchableOpacity
+          onPress={() => navigation?.goBack()}
+          style={[styles.heroBackButton, { top: topSafe }]}
+          activeOpacity={0.7}>
+          <Ionicons name="chevron-back" size={20} color="#FFFFFF" />
+          <Text style={styles.heroBackText}>Back</Text>
+        </TouchableOpacity>
+
+        <View style={[styles.heroOverlay, { paddingTop: topSafe + 40 }]}>
           <View style={styles.heroBadge}>
-            <Text style={styles.heroBadgeText}>👶 BABY HEALTH RECON</Text>
+            <Text style={styles.heroBadgeText}>👶 BABY HEALTH GUIDE</Text>
           </View>
           <Text style={styles.heroMainTitle}>Teething Relief Guide</Text>
           <Text style={styles.heroSubTitle}>Solid Food Start: 2 May 2026</Text>
@@ -167,6 +187,30 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 20,
     justifyContent: 'flex-end',
+  },
+  heroBackButton: {
+    position: 'absolute',
+    left: 18,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.55)',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    zIndex: 999,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+  },
+  heroBackText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '700',
+    marginLeft: 2,
   },
   heroBadge: {
     alignSelf: 'flex-start',

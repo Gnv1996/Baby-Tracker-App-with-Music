@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import { 
   View, 
   Text, 
@@ -25,10 +25,10 @@ const PregnancyWeekToMonth = () => {
   const [daysPregnant, setDaysPregnant] = useState(0)
   
   // LMP Date: February 18, 2025
-  const lmpDate = new Date(2025, 1, 18) // 1 = February (0-indexed)
+  const lmpDate = useMemo(() => new Date(2025, 1, 18), []) // 1 = February (0-indexed)
 
   // Corrected pregnancy timeline with proper calendar months
-  const weekToMonthData = [
+  const weekToMonthData = useMemo(() => [
     { 
       month: 1, 
       weeks: [1, 2, 3, 4], 
@@ -119,7 +119,7 @@ const PregnancyWeekToMonth = () => {
       details: "Fully developed, ready for delivery",
       monthName: "October-November" // October-November 2025
     },
-  ]
+  ], [])
 
   // Calculate current pregnancy week and month based on LMP
   useEffect(() => {
@@ -152,7 +152,7 @@ const PregnancyWeekToMonth = () => {
     // Update daily
     const timer = setInterval(calculatePregnancyInfo, 86400000)
     return () => clearInterval(timer)
-  }, [])
+  }, [lmpDate, weekToMonthData])
 
   const getCalendarMonth = () => {
     const today = new Date();

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   useColorScheme,
   StatusBar,
+  Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -92,7 +93,7 @@ const BABY_MILESTONES = [
 
 const {width} = Dimensions.get('window');
 
-export default function BabyMilestonesScreen() {
+export default function BabyMilestonesScreen({ navigation }) {
   const colorScheme = useColorScheme();
   const [expandedIndex, setExpandedIndex] = useState(null);
 
@@ -104,8 +105,22 @@ export default function BabyMilestonesScreen() {
 
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: bgColor}]}>
-     <StatusBar barStyle="light-content" backgroundColor="#FA8072" />
-      
+      <StatusBar barStyle="light-content" backgroundColor="#FA8072" />
+
+      {/* Top Navigation Bar */}
+      <View style={styles.topBarRow}>
+        <TouchableOpacity
+          onPress={() => navigation?.goBack()}
+          style={styles.backButtonCircle}
+          activeOpacity={0.7}>
+          <Text style={{ fontSize: 18, color: textPrimary }}>←</Text>
+        </TouchableOpacity>
+        <Text style={[styles.topBarTitle, { color: textPrimary }]}>
+          Baby Milestones
+        </Text>
+        <View style={{ width: 36 }} />
+      </View>
+
       {/* Premium Header */}
       <View style={styles.header}>
         <View style={styles.headerIconBg}>
@@ -213,6 +228,26 @@ export default function BabyMilestonesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  topBarRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 6 : 8,
+    paddingBottom: 10,
+  },
+  backButtonCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(244, 63, 94, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  topBarTitle: {
+    fontSize: 17,
+    fontWeight: '700',
   },
   header: {
     paddingTop: 10,

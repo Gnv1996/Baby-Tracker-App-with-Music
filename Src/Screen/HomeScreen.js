@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import {
   View,
   Text,
@@ -9,7 +9,9 @@ import {
   SafeAreaView,
   StatusBar,
   Modal,
-  ImageBackground,Animated,
+  ImageBackground,
+  Animated,
+  Platform,
 } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import Ionicons from "react-native-vector-icons/Ionicons"
@@ -23,10 +25,10 @@ import PregnancyWeekToMonth from "./PregnancyWeekToMonth"
 
 import BottomNavigation from "./bottom-navigation"
 
+const LMP_DATE = new Date(new Date().getFullYear(), 1, 18)
+const BABY_BIRTH_DATE = new Date(2025, 10, 2)
+
 const HomeScreen = ({ navigation }) => {
-  // LMP date: February 18
-  const lmpDate = new Date(new Date().getFullYear(), 1, 18) // Month is 0-indexed (1 = February)
-  const babyBirthDate = new Date(2025, 10, 2) 
   const [showCongratsModal, setShowCongratsModal] = useState(false)
   const [showMonthModal, setShowMonthModal] = useState(false)
 
@@ -40,35 +42,34 @@ const HomeScreen = ({ navigation }) => {
     babySizeComparison: "",
   })
 
+  const pulseAnim = useRef(new Animated.Value(1)).current
+
   useEffect(() => {
     checkAndNotifyMonthComplete()
-  }, [])
-  const [pulseAnim] = useState(new Animated.Value(1))
-  useEffect(() => {
-    checkAndNotifyMonthComplete()
-    Animated.loop(
+    const anim = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, { toValue: 1.06, duration: 900, useNativeDriver: true }),
         Animated.timing(pulseAnim, { toValue: 1, duration: 900, useNativeDriver: true }),
       ]),
-    ).start()
-  }, [])
+    )
+    anim.start()
+
+    return () => anim.stop()
+  }, [pulseAnim])
 
 
   useEffect(() => {
     const calculatePregnancyInfo = () => {
       const today = new Date()
-      const babyBirthDate = new Date(2025, 10, 2) // 👶 Baby born on 2 Nov 2025
-  
       // 🍼 Stop updating after birth date
-      const calculationDate = today > babyBirthDate ? babyBirthDate : today
-  
+      const calculationDate = today > BABY_BIRTH_DATE ? BABY_BIRTH_DATE : today
+
       // Calculate due date (LMP + 280 days)
-      const dueDate = new Date(lmpDate)
+      const dueDate = new Date(LMP_DATE)
       dueDate.setDate(dueDate.getDate() + 280)
-  
+
       // Calculate how far along (in days)
-      const diffTime = Math.abs(calculationDate - lmpDate)
+      const diffTime = Math.abs(calculationDate - LMP_DATE)
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
   
       // Calculate weeks and days
@@ -347,7 +348,7 @@ const HomeScreen = ({ navigation }) => {
   
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar backgroundColor="#FF9E9E" barStyle="light-content" translucent={false} />
+      <StatusBar backgroundColor="transparent" barStyle="light-content" translucent />
 
       {/* Congratulations Modal */}
       <Modal
@@ -378,8 +379,19 @@ const HomeScreen = ({ navigation }) => {
                 journey! 💖👶{"\n\n"}
                 Keep glowing and growing together!
               </Text>
-              <TouchableOpacity style={styles.modalButtons} onPress={() => setShowCongratsModal(false)}>
-                <Text style={styles.modalButtonText}>So Blessed! 💕</Text>
+              <TouchableOpacity
+                style={styles.modalButtons}
+                onPress={() => setShowCongratsModal(false)}
+                activeOpacity={0.85}
+              >
+                <LinearGradient
+                  colors={["#FF6F91", "#FF8FA3"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.modalButtonGradient}
+                >
+                  <Text style={styles.modalButtonsText}>So Blessed! 💕</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
           </LinearGradient>
@@ -447,7 +459,7 @@ const HomeScreen = ({ navigation }) => {
                 <Text style={[styles.monthLabel, isCurrentMonth && { color: "#FF6B8B" }]}>
                   Month {month}
                 </Text>
-                <Text style={styles.weekLabel}>{weeks} Weeks</Text>
+                <Text style={styles.monthWeekLabel}>{weeks} Weeks</Text>
               </LinearGradient>
             );
           })}
@@ -466,7 +478,7 @@ const HomeScreen = ({ navigation }) => {
 
 
 
-      <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingBottom: 100 }]}>
+      <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingBottom: 150 }]}>
         {/* Baby Image Background */}
         <ImageBackground
           source={getBabyImage(pregnancyInfo.currentWeek)}
@@ -812,7 +824,7 @@ const styles = StyleSheet.create({
   },
   babyImageBackground: {
     width: "100%",
-    height: 420,
+    height: 450,
     justifyContent: "space-between",
   },
   topInfoBar: {
@@ -820,8 +832,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
-    paddingTop: 20,
-    // marginTop: 0,
+    paddingTop: Platform.OS === "android" ? Math.max(StatusBar.currentHeight || 0, 32) + 10 : 10,
   },
   infoCard: {
     backgroundColor: "rgba(255, 255, 255, 0.85)",
@@ -1372,34 +1383,11 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 1 },
     textShadowRadius: 2,
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  modalContainer: {
-    width: "100%",
-    borderRadius: 20,
-    padding: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-  },
   modalContents: {
     backgroundColor: "#FFF",
     borderRadius: 20,
     padding: 20,
     maxHeight: 500,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#FF6B8B",
-    textAlign: "center",
   },
   monthCard: {
     flexDirection: "row",
@@ -1418,32 +1406,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#FF6B8B",
   },
-  weekLabel: {
+  monthWeekLabel: {
     fontSize: 16,
     color: "#FF6B8B",
   },
-  modalButton: {
-    marginTop: 15,
-    backgroundColor: "#FF6B8B",
-    paddingVertical: 12,
-
-    borderRadius: 12,
-  },
   modalButtons: {
-    marginTop: 15,
-    backgroundColor: "#FF6B8B",
-    paddingVertical: 12,
-    paddingHorizontal:15,
-    borderRadius: 12,
+    marginTop: 18,
+    borderRadius: 25,
+    overflow: "hidden",
+    elevation: 4,
+    shadowColor: "#FF6B8B",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
   },
-  modalButtonText: {
-    textAlign: "center",
-    color: "#FFF",
-    fontWeight: "700",
+  modalButtonGradient: {
+    paddingVertical: 14,
+    paddingHorizontal: 36,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 25,
+  },
+  modalButtonsText: {
+    color: "#FFFFFF",
     fontSize: 16,
+    fontWeight: "800",
+    letterSpacing: 0.5,
   },
-  
-  
 })
 
 export default HomeScreen;

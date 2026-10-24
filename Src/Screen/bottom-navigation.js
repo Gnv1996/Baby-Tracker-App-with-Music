@@ -1,115 +1,152 @@
-import React from "react"
-import { View, Text, TouchableOpacity, StyleSheet, Animated, Platform } from "react-native"
-import LinearGradient from "react-native-linear-gradient"
-import Ionicons from "react-native-vector-icons/Ionicons"
-import { BlurView } from "@react-native-community/blur"
+import React from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { BlurView } from '@react-native-community/blur';
 
 const BottomNavigation = ({ currentScreen, navigation }) => {
   const navItems = [
-    { name: "Home", icon: "home", component: Ionicons },
-    { name: "Diet", icon: "nutrition", component: Ionicons },
-    { name: "NormalDelivery", icon: "woman-outline", component: Ionicons },
-    { name: "Vaccine", icon: "bandage-outline", component: Ionicons },
-
-  ]
- 
- 
+    { name: 'Home', label: 'Pregnancy', icon: 'heart', activeIcon: 'heart' },
+    { name: 'MyBaby', label: 'Baby Hub', icon: 'sparkles-outline', activeIcon: 'sparkles' },
+    { name: 'Play', label: 'Lullabies', icon: 'musical-notes-outline', activeIcon: 'musical-notes' },
+    { name: 'Diet', label: 'Diet Tips', icon: 'nutrition-outline', activeIcon: 'nutrition' },
+    { name: 'NormalDelivery', label: 'Prep', icon: 'fitness-outline', activeIcon: 'fitness' },
+  ];
 
   return (
-    <View style={styles.container}>
-      {/* Frosted Glass Effect for iOS */}
-      {Platform.OS === "ios" ? (
-        <BlurView style={styles.blur} blurType="light" blurAmount={15} />
-      ) : (
-        <LinearGradient colors={["#ffffffcc", "#ffe6ec"]} style={styles.background} />
-      )}
+    <View style={styles.outerContainer}>
+      <View style={styles.container}>
+        {Platform.OS === 'ios' ? (
+          <BlurView style={styles.blur} blurType="light" blurAmount={20} />
+        ) : (
+          <LinearGradient
+            colors={['#FFFFFFEE', '#FFF5F8EE']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={styles.background}
+          />
+        )}
 
-      <View style={styles.navContainer}>
-        {navItems.map((item) => {
-          const IconComponent = item.component
-          const isActive = currentScreen === item.name
+        <View style={styles.navContainer}>
+          {navItems.map((item) => {
+            const isActive = currentScreen === item.name;
 
-          return (
-            <TouchableOpacity
-              key={item.name}
-              style={styles.navItem}
-              onPress={() => navigation.navigate(item.name)}
-              activeOpacity={0.8}
-            >
-              <View style={isActive ? styles.activeIconWrapper : styles.iconWrapper}>
-                <IconComponent
-                  name={item.icon}
-                  size={24}
-                  color={isActive ? "#fff" : "#888"}
-                />
-              </View>
-              <Text style={[styles.navText, isActive && styles.activeNavText]}>{item.name}</Text>
-            </TouchableOpacity>
-          )
-        })}
+            return (
+              <TouchableOpacity
+                key={item.name}
+                style={styles.navItem}
+                onPress={() => {
+                  if (currentScreen !== item.name) {
+                    navigation.navigate(item.name);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                {isActive ? (
+                  <LinearGradient
+                    colors={['#FF6B8B', '#FF8FA3']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.activeIconWrapper}
+                  >
+                    <Ionicons name={item.activeIcon} size={20} color="#FFFFFF" />
+                  </LinearGradient>
+                ) : (
+                  <View style={styles.iconWrapper}>
+                    <Ionicons name={item.icon} size={20} color="#94A3B8" />
+                  </View>
+                )}
+                <Text
+                  style={[
+                    styles.navText,
+                    isActive && styles.activeNavText,
+                  ]}
+                  numberOfLines={1}
+                >
+                  {item.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
       </View>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
+  outerContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    pointerEvents: 'box-none',
+  },
   container: {
-    position: "absolute",
-    bottom: 10,
-    left: 16,
-    right: 16,
-    height: 70,
-    borderRadius: 25,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
+    width: '100%',
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 182, 193, 0.35)',
+    shadowColor: '#FF6B8B',
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 12,
-    overflow: "hidden",
+    shadowRadius: 16,
+    elevation: 14,
+    overflow: 'hidden',
   },
   blur: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 25,
   },
   background: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 25,
   },
   navContainer: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    height: "100%",
-    paddingHorizontal: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    height: '100%',
+    paddingHorizontal: 6,
   },
   navItem: {
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
     flex: 1,
   },
   iconWrapper: {
-    padding: 10,
-    borderRadius: 20,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   activeIconWrapper: {
-    padding: 10,
-    backgroundColor: "#FF6F91",
-    borderRadius: 20,
-    shadowColor: "#FF6F91",
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#FF6B8B',
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowRadius: 6,
   },
   navText: {
-    fontSize: 12,
-    color: "#888",
-    marginTop: 4,
+    fontSize: 10,
+    color: '#94A3B8',
+    fontWeight: '600',
+    marginTop: 2,
   },
   activeNavText: {
-    color: "#FF6F91",
-    fontWeight: "600",
+    color: '#FF6B8B',
+    fontWeight: '800',
   },
-})
+});
 
-export default BottomNavigation
+export default BottomNavigation;

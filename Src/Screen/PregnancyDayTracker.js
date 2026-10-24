@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import {
   ScrollView,
   View,
@@ -43,15 +43,18 @@ function PregnancyDayTracker({ pregnancyLength = 280 }) {
     if (startDay < 1) startDay = 1;
   }
 
-  const daysArray = [];
-  for (let i = startDay; i <= endDay; i++) {
-    daysArray.push(i);
-  }
+  const daysArray = useMemo(() => {
+    const arr = [];
+    for (let i = startDay; i <= endDay; i++) {
+      arr.push(i);
+    }
+    return arr;
+  }, [startDay, endDay]);
 
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
-    Animated.loop(
+    const loop = Animated.loop(
       Animated.sequence([
         Animated.timing(scaleAnim, {
           toValue: 1.1,
@@ -64,8 +67,11 @@ function PregnancyDayTracker({ pregnancyLength = 280 }) {
           useNativeDriver: true,
         }),
       ])
-    ).start();
-  }, []);
+    );
+    loop.start();
+
+    return () => loop.stop();
+  }, [scaleAnim]);
 
   const scrollRef = useRef(null);
 

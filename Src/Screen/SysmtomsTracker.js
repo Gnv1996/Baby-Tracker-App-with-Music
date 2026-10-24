@@ -181,7 +181,7 @@ const SymptomTrackerScreen = ({ navigation }) => {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
   
   // Update symptom intensity
   const updateIntensity = (id, value) => {

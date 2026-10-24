@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import BottomNavigation from './bottom-navigation';
 
 const { width } = Dimensions.get('window');
 
@@ -224,6 +225,8 @@ const DietTipsScreen = () => {
         {/* Bottom Spacing */}
         <View style={styles.bottomSpacing} />
       </ScrollView>
+
+      <BottomNavigation currentScreen="Diet" navigation={navigation} />
     </View>
   );
 };
@@ -437,7 +440,7 @@ const styles = StyleSheet.create({
     paddingLeft: 8,
   },
   bottomSpacing: {
-    height: 20,
+    height: 85,
   },
 });
 
