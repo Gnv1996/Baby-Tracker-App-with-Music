@@ -16,6 +16,7 @@ import {
   Image,
   Platform,
   Alert,
+  Linking,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
@@ -30,6 +31,17 @@ const {width, height} = Dimensions.get('window');
 const BABY_NAME = 'Dhruv Gautam';
 const BABY_BIRTHDATE = new Date('2025-11-02');
 const PREGNANCY_DUE_DATE = new Date('2025-12-15');
+const BABY_PHOTO_ALBUM_URL =
+  'https://drive.google.com/file/d/19pgCWraJgEGMaQ3m1OTloJX03fw8pKPg/view?usp=sharing';
+
+const openBabyPhotoAlbum = () => {
+  Linking.openURL(BABY_PHOTO_ALBUM_URL).catch(() => {
+    Alert.alert(
+      'Unable to Open Link',
+      'Please make sure you have internet access or Google Drive installed.',
+    );
+  });
+};
 
 const COLORS = {
   primary: '#06B6D4',
@@ -1229,95 +1241,92 @@ function VaccineTrackerScreen() {
           source={require('../Assest/beta.jpeg')}
           style={styles.headerGradient}
           imageStyle={{
-            borderBottomLeftRadius: 24,
-            borderBottomRightRadius: 24,
+            borderBottomLeftRadius: 32,
+            borderBottomRightRadius: 32,
           }}>
           <LinearGradient
-            colors={['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.7)']}
+            colors={['rgba(0,0,0,0.3)', 'transparent', 'rgba(15, 23, 42, 0.88)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
             style={styles.headerOverlay}>
-            <View style={styles.headerContent}>
-              <Text style={styles.welcomeText}>
-                🌸 Welcome — mera bachcha 🌸
-              </Text>
-              <Text style={styles.babyName}>{BABY_NAME}</Text>
-              <Text style={styles.babyBirthdate}>
-                👶 Born {babyBirthdateString}
-              </Text>
-              <Text style={styles.babyBlessing}>
-                Healthy • Happy • Loved 💫
-              </Text>
-
-              {/* Quick Navigation Action Chips */}
-              <View
-                style={{
-                  flexDirection: 'row',
-                  gap: 8,
-                  marginTop: 14,
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
-                }}>
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Home')}
-                  activeOpacity={0.8}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    backgroundColor: 'rgba(255,255,255,0.24)',
-                    paddingHorizontal: 12,
-                    paddingVertical: 6,
-                    borderRadius: 16,
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.4)',
-                  }}>
-                  <Text style={{ fontSize: 13, marginRight: 5 }}>🤰</Text>
-                  <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>
-                    Pregnancy Mode
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Play')}
-                  activeOpacity={0.8}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    backgroundColor: 'rgba(255,255,255,0.24)',
-                    paddingHorizontal: 12,
-                    paddingVertical: 6,
-                    borderRadius: 16,
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.4)',
-                  }}>
-                  <Text style={{ fontSize: 13, marginRight: 5 }}>🎵</Text>
-                  <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>
-                    Lullabies
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  onPress={() => navigation.navigate('Onboarding')}
-                  activeOpacity={0.8}
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    backgroundColor: 'rgba(255,255,255,0.24)',
-                    paddingHorizontal: 12,
-                    paddingVertical: 6,
-                    borderRadius: 16,
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.4)',
-                  }}>
-                  <Text style={{ fontSize: 13, marginRight: 5 }}>✨</Text>
-                  <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>
-                    App Tour
-                  </Text>
-                </TouchableOpacity>
+            {/* Top Royal Status Row - Top corners only, face completely clear */}
+            <View style={styles.royalTopRow}>
+              <View style={styles.royalCrownPill}>
+                <Text style={styles.royalCrownEmoji}>👑</Text>
+                <Text style={styles.royalCrownText}>DHRUV</Text>
               </View>
+
+              <TouchableOpacity
+                onPress={() => navigation.navigate('Onboarding')}
+                activeOpacity={0.75}
+                style={styles.royalTourBtn}>
+                <Text style={styles.royalTourEmoji}>✨</Text>
+                <Text style={styles.royalTourText}>Tour</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Bottom Royal Card - Positioned strictly at bottom over blanket */}
+            <View style={styles.royalBottomCard}>
+              <View style={styles.royalTitleRow}>
+                <Text style={styles.royalNameText}>Dhruv Gautam</Text>
+                <View style={styles.royalBadgeGold}>
+                  <Text style={styles.royalBadgeGoldText}>ROYAL BABY</Text>
+                </View>
+              </View>
+
+              <Text style={styles.royalSubtitleText}>
+                👶 Born 2 Nov 2025 • Little Prince 💖
+              </Text>
             </View>
           </LinearGradient>
         </ImageBackground>
 
         <AgeCard />
+
+        {/* 📸 Baby Dhruv 1-12 Month Photo Album on Google Drive */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={openBabyPhotoAlbum}
+          style={styles.photoAlbumCard}>
+          <LinearGradient
+            colors={['#7C3AED', '#EC4899', '#F43F5E']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.photoAlbumGradient}>
+            {/* Top Bar with Badges */}
+            <View style={styles.photoAlbumHeaderRow}>
+              <View style={styles.photoAlbumGlassBadge}>
+                <Text style={styles.photoAlbumBadgeText}>📸 BABY MEMORIES</Text>
+              </View>
+              <View style={styles.photoAlbumDriveBadge}>
+                <Text style={styles.photoAlbumDriveText}>GOOGLE DRIVE ↗</Text>
+              </View>
+            </View>
+
+            {/* Main Content Row */}
+            <View style={styles.photoAlbumMainRow}>
+              <View style={styles.photoAlbumIconBox}>
+                <Text style={styles.photoAlbumEmoji}>📷</Text>
+              </View>
+              <View style={styles.photoAlbumTextCol}>
+                <Text style={styles.photoAlbumTitle}>Dhruv's Photo Album</Text>
+                <Text style={styles.photoAlbumSubtitle}>
+                  1 to 12 Month Photos Collection 💖
+                </Text>
+              </View>
+              <View style={styles.photoAlbumArrowBtn}>
+                <Text style={styles.photoAlbumArrowText}>Open ↗</Text>
+              </View>
+            </View>
+
+            {/* Bottom Subtle Bar */}
+            <View style={styles.photoAlbumFooterRow}>
+              <Text style={styles.photoAlbumFooterText}>
+                ✨ Tap to open and view high-resolution album
+              </Text>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
 
         {nextUpcomingVaccines && nextUpcomingVaccines.length > 0 && (
           <UpcomingInjectionCard
@@ -1573,7 +1582,7 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     fontWeight: '600',
   },
-  ageCardContainer: {marginHorizontal: 12, marginVertical: 14},
+  ageCardContainer: {marginHorizontal: 16, marginVertical: 12},
   ageCard: {
     backgroundColor: COLORS.surface,
     borderRadius: 28,
@@ -1998,46 +2007,113 @@ const styles = StyleSheet.create({
     letterSpacing: -0.2,
   },
   headerGradient: {
-    height: 300,
+    height: 320,
     width: '100%',
-    justifyContent: 'flex-end',
-    borderBottomLeftRadius: 28,
-    borderBottomRightRadius: 28,
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 12,
   },
-  headerOverlay: {padding: 28, paddingBottom: 38},
-  welcomeText: {
-    fontSize: 16,
-    color: COLORS.surface,
-    fontWeight: '800',
-    opacity: 0.92,
-    marginBottom: 12,
-    textAlign: 'center',
-    letterSpacing: -0.3,
+  headerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'android' ? (StatusBar.currentHeight || 24) + 12 : 24,
+    paddingBottom: 20,
+    justifyContent: 'space-between',
   },
-  babyName: {
-    fontSize: 38,
-    fontWeight: '900',
-    color: COLORS.surface,
-    marginBottom: 8,
-    textAlign: 'center',
+  royalTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
-  babyBirthdate: {
-    fontSize: 16,
-    color: COLORS.surface,
-    marginBottom: 6,
-    textAlign: 'center',
-    opacity: 0.92,
-    fontWeight: '600',
-    letterSpacing: -0.2,
+  royalCrownPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.55)',
   },
-  babyBlessing: {
+  royalCrownEmoji: {
     fontSize: 14,
-    color: COLORS.surface,
-    fontWeight: '700',
+    marginRight: 6,
+  },
+  royalCrownText: {
+    color: '#FFD700',
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 1,
+  },
+  royalTourBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  royalTourEmoji: {
+    fontSize: 12,
+    marginRight: 5,
+  },
+  royalTourText: {
+    color: '#FFFFFF',
+    fontSize: 11,
+    fontWeight: '800',
+    letterSpacing: 0.3,
+  },
+  royalBottomCard: {
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
+    borderRadius: 22,
+    paddingVertical: 12,
+    paddingHorizontal: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 215, 0, 0.35)',
+  },
+  royalTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    marginBottom: 4,
+  },
+  royalNameText: {
+    fontSize: 22,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.3,
+    textShadowColor: 'rgba(0, 0, 0, 0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
+  },
+  royalBadgeGold: {
+    backgroundColor: '#D97706',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  royalBadgeGoldText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.6,
+  },
+  royalSubtitleText: {
+    fontSize: 12.5,
+    color: 'rgba(255, 255, 255, 0.92)',
+    fontWeight: '600',
     textAlign: 'center',
-    opacity: 0.88,
+    letterSpacing: -0.1,
   },
   pregnancyHeader: {
     height: 300,
@@ -2523,5 +2599,123 @@ const styles = StyleSheet.create({
     color: '#94A3B8',
     fontSize: 12.5,
     fontWeight: '700',
+  },
+
+  // --- PHOTO ALBUM CARD ---
+  photoAlbumCard: {
+    marginHorizontal: 16,
+    marginVertical: 12,
+    borderRadius: 28,
+    overflow: 'hidden',
+    elevation: 8,
+    shadowColor: '#EC4899',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
+  },
+  photoAlbumGradient: {
+    padding: 18,
+    paddingTop: 16,
+    paddingBottom: 14,
+  },
+  photoAlbumHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  photoAlbumGlassBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  photoAlbumBadgeText: {
+    fontSize: 9.5,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 0.6,
+  },
+  photoAlbumDriveBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  photoAlbumDriveText: {
+    fontSize: 9.5,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 0.6,
+  },
+  photoAlbumMainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  photoAlbumIconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  photoAlbumEmoji: {
+    fontSize: 24,
+  },
+  photoAlbumTextCol: {
+    flex: 1,
+    marginLeft: 12,
+    marginRight: 8,
+  },
+  photoAlbumTitle: {
+    fontSize: 16,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: -0.2,
+  },
+  photoAlbumSubtitle: {
+    fontSize: 11.5,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.95)',
+    marginTop: 3,
+  },
+  photoAlbumArrowBtn: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 18,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+  },
+  photoAlbumArrowText: {
+    color: '#E11D48',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  photoAlbumFooterRow: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255, 255, 255, 0.25)',
+    alignItems: 'center',
+  },
+  photoAlbumFooterText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: 'rgba(255, 255, 255, 0.95)',
+    textAlign: 'center',
   },
 });

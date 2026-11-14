@@ -11,6 +11,8 @@ import {
   useColorScheme,
   StatusBar,
   Platform,
+  Linking,
+  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -103,6 +105,17 @@ export default function BabyMilestonesScreen({ navigation }) {
   const textSecondary = isDark ? '#94A3B8' : '#64748B';
   const lineColor = isDark ? '#334155' : '#E2E8F0';
 
+  const handleOpenPhotoAlbum = () => {
+    Linking.openURL(
+      'https://drive.google.com/file/d/1ft40rd55fUUT1g7vfti5GygJNH1ocok3/view?usp=sharing',
+    ).catch(() => {
+      Alert.alert(
+        'Unable to Open Link',
+        'Please check your internet connection or Google Drive app.',
+      );
+    });
+  };
+
   return (
     <SafeAreaView style={[styles.container, {backgroundColor: bgColor}]}>
       <StatusBar barStyle="light-content" backgroundColor="#FA8072" />
@@ -139,6 +152,42 @@ export default function BabyMilestonesScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         
+        {/* 📸 Baby 1-12 Month Photo Album on Google Drive */}
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={handleOpenPhotoAlbum}
+          style={styles.photoBannerCard}>
+          <LinearGradient
+            colors={['#7C3AED', '#EC4899', '#F43F5E']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.photoBannerGradient}>
+            <View style={styles.photoBannerTopRow}>
+              <View style={styles.photoBannerBadge}>
+                <Text style={styles.photoBannerBadgeText}>📸 BABY MEMORIES</Text>
+              </View>
+              <View style={styles.driveTag}>
+                <Text style={styles.driveTagText}>GOOGLE DRIVE ↗</Text>
+              </View>
+            </View>
+
+            <View style={styles.photoBannerMainRow}>
+              <View style={styles.photoBannerIconBox}>
+                <Text style={{ fontSize: 24 }}>📷</Text>
+              </View>
+              <View style={{ flex: 1, marginLeft: 12, marginRight: 8 }}>
+                <Text style={styles.photoBannerTitle}>Dhruv's Photo Album</Text>
+                <Text style={styles.photoBannerSubtitle}>
+                  1 to 12 Month Photos Collection 💖
+                </Text>
+              </View>
+              <View style={styles.openBtn}>
+                <Text style={styles.openBtnText}>Open ↗</Text>
+              </View>
+            </View>
+          </LinearGradient>
+        </TouchableOpacity>
+
         <View style={styles.timelineWrapper}>
           {BABY_MILESTONES.map((item, index) => {
             const isExpanded = expandedIndex === index;
@@ -418,5 +467,91 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontWeight: '600',
     fontStyle: 'italic',
+  },
+  photoBannerCard: {
+    width: '100%',
+    marginBottom: 20,
+    borderRadius: 24,
+    overflow: 'hidden',
+    elevation: 6,
+    shadowColor: '#EC4899',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.24,
+    shadowRadius: 10,
+  },
+  photoBannerGradient: {
+    padding: 16,
+    paddingTop: 14,
+    paddingBottom: 14,
+  },
+  photoBannerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  photoBannerBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  photoBannerBadgeText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  driveTag: {
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+  },
+  driveTagText: {
+    fontSize: 9,
+    fontWeight: '900',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
+  },
+  photoBannerMainRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  photoBannerIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+  },
+  photoBannerTitle: {
+    fontSize: 15,
+    fontWeight: '900',
+    color: '#FFFFFF',
+  },
+  photoBannerSubtitle: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.95)',
+    marginTop: 2,
+  },
+  openBtn: {
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    elevation: 2,
+  },
+  openBtnText: {
+    color: '#E11D48',
+    fontSize: 11.5,
+    fontWeight: '900',
   },
 });

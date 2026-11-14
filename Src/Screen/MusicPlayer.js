@@ -9,6 +9,7 @@ import {
   PermissionsAndroid,
   Platform,
   Alert,
+  Linking,
   Image,
   Dimensions,
   StatusBar,
@@ -328,6 +329,26 @@ const MusicPlayer = () => {
             </Animated.View>
           </TouchableOpacity>
 
+          {/* View Google Drive 1-12 Month Photo Album */}
+          <TouchableOpacity
+            onPress={() => {
+              Linking.openURL(
+                "https://drive.google.com/file/d/1ft40rd55fUUT1g7vfti5GygJNH1ocok3/view?usp=sharing",
+              ).catch(() => {
+                Alert.alert(
+                  "Unable to Open Link",
+                  "Please check your internet connection or Google Drive app.",
+                )
+              })
+            }}
+            activeOpacity={0.8}
+            style={styles.drivePillButton}>
+            <Text style={{ fontSize: 13, marginRight: 6 }}>📸</Text>
+            <Text style={styles.drivePillText}>
+              Dhruv's 1-12M Photos (Drive) ↗
+            </Text>
+          </TouchableOpacity>
+
           {/* Song Info */}
           <View style={{ alignItems: "center", marginVertical: 6 }}>
             <Text style={styles.songTitle}>
@@ -581,5 +602,24 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 8,
+  },
+  drivePillButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    marginTop: 10,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.45)",
+    elevation: 2,
+  },
+  drivePillText: {
+    color: "#FFFFFF",
+    fontSize: 12,
+    fontWeight: "800",
+    letterSpacing: 0.2,
   },
 })

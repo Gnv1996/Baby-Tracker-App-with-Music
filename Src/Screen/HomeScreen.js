@@ -12,6 +12,8 @@ import {
   ImageBackground,
   Animated,
   Platform,
+  Linking,
+  Alert,
 } from "react-native"
 import LinearGradient from "react-native-linear-gradient"
 import Ionicons from "react-native-vector-icons/Ionicons"
@@ -586,6 +588,49 @@ const HomeScreen = ({ navigation }) => {
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+
+          {/* Baby Photo Album Banner (1-12 Months) on Google Drive */}
+          {new Date() >= BABY_BIRTH_DATE && (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => {
+                Linking.openURL(
+                  "https://drive.google.com/file/d/1ft40rd55fUUT1g7vfti5GygJNH1ocok3/view?usp=sharing",
+                ).catch(() => {
+                  Alert.alert(
+                    "Unable to Open Link",
+                    "Please check your internet connection or Google Drive app.",
+                  )
+                })
+              }}
+              style={styles.photoAlbumHomeBanner}>
+              <LinearGradient
+                colors={["#8B5CF6", "#EC4899"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.photoAlbumHomeGradient}>
+                <View style={styles.photoAlbumHomeIconBox}>
+                  <Text style={{ fontSize: 22 }}>📸</Text>
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                    <Text style={styles.photoAlbumHomeTitle}>
+                      Baby Dhruv's Photo Album
+                    </Text>
+                    <View style={styles.photoAlbumHomeDriveBadge}>
+                      <Text style={styles.photoAlbumHomeDriveText}>1-12M</Text>
+                    </View>
+                  </View>
+                  <Text style={styles.photoAlbumHomeSubtitle} numberOfLines={1}>
+                    1 to 12 Month Photos • View on Google Drive 💖
+                  </Text>
+                </View>
+                <View style={styles.photoAlbumHomeOpenBtn}>
+                  <Text style={styles.photoAlbumHomeOpenText}>View ↗</Text>
+                </View>
               </LinearGradient>
             </TouchableOpacity>
           )}
@@ -1495,6 +1540,72 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "rgba(255, 255, 255, 0.95)",
     marginTop: 2,
+  },
+  photoAlbumHomeBanner: {
+    marginHorizontal: 20,
+    marginTop: 8,
+    marginBottom: 4,
+    borderRadius: 20,
+    overflow: "hidden",
+    elevation: 4,
+    shadowColor: "#8B5CF6",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
+  },
+  photoAlbumHomeGradient: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  photoAlbumHomeIconBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 2,
+  },
+  photoAlbumHomeTitle: {
+    fontSize: 14.5,
+    fontWeight: "800",
+    color: "#FFFFFF",
+  },
+  photoAlbumHomeDriveBadge: {
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    paddingHorizontal: 6,
+    paddingVertical: 1.5,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.35)",
+  },
+  photoAlbumHomeDriveText: {
+    fontSize: 9,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    letterSpacing: 0.5,
+  },
+  photoAlbumHomeSubtitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.95)",
+    marginTop: 2,
+  },
+  photoAlbumHomeOpenBtn: {
+    backgroundColor: "rgba(255, 255, 255, 0.25)",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.4)",
+    marginLeft: 6,
+  },
+  photoAlbumHomeOpenText: {
+    color: "#FFFFFF",
+    fontSize: 11,
+    fontWeight: "800",
   },
 })
 
