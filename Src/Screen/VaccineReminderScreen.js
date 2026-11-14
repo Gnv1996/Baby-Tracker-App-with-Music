@@ -97,7 +97,7 @@ const vaccines = [
 ];
 
 
-const babyBirthDate = moment("2025-12-02")
+const babyBirthDate = moment("2025-11-02")
 
 const VaccineTrackerScreen = () => {
   const [today, setToday] = useState(moment())
@@ -176,7 +176,7 @@ const VaccineTrackerScreen = () => {
               </View>
             </View>
             <View style={styles.babyNameBadge}>
-              <Text style={styles.babyNameText}>Nici 👶</Text>
+              <Text style={styles.babyNameText}>Dhruv 👶</Text>
             </View>
           </View>
 

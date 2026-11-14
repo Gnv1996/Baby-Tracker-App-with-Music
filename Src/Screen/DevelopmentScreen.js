@@ -13,16 +13,33 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 
 const DevelopmentScreen = ({ navigation }) => {
-  // LMP date: February 18
-  const lmpDate = new Date(new Date().getFullYear(), 1, 18);
+  // LMP date: February 18, 2025
+  const lmpDate = new Date(2025, 1, 18);
+  const babyBirthDate = new Date(2025, 10, 2);
   const today = new Date();
-  const diffTime = Math.abs(today - lmpDate);
+  const isDelivered = today >= babyBirthDate;
+  const calculationDate = isDelivered ? babyBirthDate : today;
+  const diffTime = Math.abs(calculationDate - lmpDate);
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-  const currentWeek = Math.floor(diffDays / 7);
+  const currentWeek = isDelivered ? 37 : Math.floor(diffDays / 7);
   
   // Development information based on current week
   const getDevelopmentInfo = () => {
-    if (currentWeek < 5) {
+    if (isDelivered) {
+      return {
+        title: '🎉 Baby Delivered!',
+        size: 'Baby Born',
+        weight: 'Healthy Baby Boy',
+        comparison: 'Dhruv Born 2 Nov 2025 👶',
+        description: 'Baby boy Dhruv Gautam was born on 2 November 2025! Both mother and baby are happy, healthy, and blessed.',
+        milestones: [
+          'Baby born on 2 November 2025',
+          'Delivery successfully completed',
+          'Healthy, happy and blessed',
+          'Now tracking baby vaccinations & milestones',
+        ],
+      };
+    } else if (currentWeek < 5) {
       return {
         title: 'Embryonic Development',
         size: '< 0.1 inches',

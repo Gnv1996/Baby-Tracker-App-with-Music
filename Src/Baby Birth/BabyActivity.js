@@ -402,6 +402,7 @@ const styles = StyleSheet.create({
   },
   footer: {
     marginTop: 40,
+    marginBottom: 24,
     padding: 24,
     borderRadius: 30,
     alignItems: 'center',

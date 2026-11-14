@@ -15,9 +15,12 @@ const DAY_BOX_MARGIN = 6;
 
 function PregnancyDayTracker({ pregnancyLength = 280 }) {
   const startDate = new Date(2025, 1, 18); // Feb 18, 2025
+  const birthDate = new Date(2025, 10, 2); // Nov 2, 2025
   const today = new Date();
+  const isDelivered = today >= birthDate;
 
-  const diffTime = today.getTime() - startDate.getTime();
+  const calculationDate = isDelivered ? birthDate : today;
+  const diffTime = calculationDate.getTime() - startDate.getTime();
   let currentDay = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
   if (currentDay < 1) currentDay = 1;
@@ -119,21 +122,34 @@ function PregnancyDayTracker({ pregnancyLength = 280 }) {
             >
               <View style={styles.lockIconWrapper}>
                 {isLocked ? (
-                  <Icon name="lock" size={18} color="#bbb" />
+                  <Icon name="lock" size={16} color="#bbb" />
+                ) : isDelivered ? (
+                  <Text style={{ fontSize: 13 }}>🎂</Text>
                 ) : (
-                  <View style={{ height: 18 }} />
+                  <View style={{ height: 16 }} />
                 )}
               </View>
               <Text style={[styles.dayText, isCurrent && styles.currentDayText]}>
                 {day}
               </Text>
+              {isCurrent && isDelivered ? (
+                <Text style={styles.bornBadgeText}>BORN</Text>
+              ) : null}
             </Animated.View>
           );
         })}
       </ScrollView>
 
       <View style={styles.daysLeftBox}>
-        <Text style={styles.daysLeftText}>{daysLeft}days left</Text>
+        {isDelivered ? (
+          <View style={styles.deliveredBadge}>
+            <Text style={styles.deliveredText}>
+              🎉 Baby Dhruv Born on 2 Nov 2025 • Day 257
+            </Text>
+          </View>
+        ) : (
+          <Text style={styles.daysLeftText}>{daysLeft} days left</Text>
+        )}
       </View>
     </View>
   );
@@ -141,7 +157,8 @@ function PregnancyDayTracker({ pregnancyLength = 280 }) {
 
 const styles = StyleSheet.create({
   card: {
-    marginVertical: 20,
+    marginTop: 14,
+    marginBottom: 20,
     marginHorizontal: 20,
     backgroundColor: "#fff",
     borderRadius: 16,
@@ -166,14 +183,15 @@ const styles = StyleSheet.create({
   },
   dayBox: {
     width: DAY_BOX_WIDTH,
-    height: 80,
+    height: 84,
     marginHorizontal: DAY_BOX_MARGIN,
-    borderRadius: 14,
+    borderRadius: 16,
     backgroundColor: "#F9F9F9",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
     borderColor: "#eee",
+    paddingVertical: 6,
   },
   lockIconWrapper: {
     height: 18,
@@ -181,10 +199,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   dayText: {
-    marginTop: 8,
-    fontSize: 22,
+    marginTop: 2,
+    fontSize: 18,
     color: "#555",
-    fontWeight: "600",
+    fontWeight: "700",
   },
   currentDayBox: {
     backgroundColor: "#FF6B8B",
@@ -197,21 +215,46 @@ const styles = StyleSheet.create({
   },
   currentDayText: {
     color: "#fff",
-    fontWeight: "800",
-    fontSize: 30,
+    fontWeight: "900",
+    fontSize: 22,
+    marginTop: 1,
+  },
+  bornBadgeText: {
+    fontSize: 9,
+    fontWeight: "900",
+    color: "#FFFFFF",
+    letterSpacing: 0.8,
+    marginTop: 1,
   },
   lockedDayBox: {
     opacity: 0.5,
     borderColor: "#ccc",
   },
   daysLeftBox: {
-    marginTop: 18,
+    marginTop: 16,
     alignItems: "center",
+    justifyContent: "center",
   },
   daysLeftText: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: "700",
     color: "#333",
+    textAlign: "center",
+  },
+  deliveredBadge: {
+    backgroundColor: "#FFF0F3",
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#FFD1DC",
+    alignSelf: "center",
+  },
+  deliveredText: {
+    color: "#E11D48",
+    fontSize: 13,
+    fontWeight: "800",
+    textAlign: "center",
   },
 });
 

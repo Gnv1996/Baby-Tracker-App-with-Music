@@ -15,9 +15,11 @@ import {
   ImageBackground,
   Image,
   Platform,
+  Alert,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {useNavigation} from '@react-navigation/native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ConfettiCannon from 'react-native-confetti-cannon';
 import SoundPlayer from 'react-native-sound-player';
@@ -66,16 +68,21 @@ function calculateAge(birthDate) {
 
 function calculatePregnancyProgress(dueDate) {
   const today = new Date();
+  const isDelivered = today >= BABY_BIRTHDATE;
+  const calculationDate = isDelivered ? BABY_BIRTHDATE : today;
   const startDate = new Date(dueDate);
   startDate.setDate(startDate.getDate() - 280);
   const totalDays = 280;
-  const daysElapsed = Math.floor((today - startDate) / (1000 * 60 * 60 * 24));
-  const weeksElapsed = Math.floor(daysElapsed / 7);
-  const daysRemaining = Math.floor((dueDate - today) / (1000 * 60 * 60 * 24));
+  const daysElapsed = Math.floor((calculationDate - startDate) / (1000 * 60 * 60 * 24));
+  const weeksElapsed = isDelivered ? 37 : Math.floor(daysElapsed / 7);
+  const daysRemaining = isDelivered
+    ? 0
+    : Math.max(0, Math.floor((dueDate - today) / (1000 * 60 * 60 * 24)));
   return {
     weeksElapsed,
     daysRemaining,
-    progress: (daysElapsed / totalDays) * 100,
+    progress: isDelivered ? 100 : (daysElapsed / totalDays) * 100,
+    isDelivered,
   };
 }
 
@@ -332,12 +339,42 @@ function AgeCard() {
   );
 }
 
-function UpcomingInjectionCard({vaccine, scheduledDate}) {
-  const formattedDate = vaccine.dueDate.toLocaleDateString('en-US', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-  });
+function UpcomingInjectionCard({vaccines, vaccine, onSelectCategory}) {
+  const list =
+    Array.isArray(vaccines) && vaccines.length > 0
+      ? vaccines
+      : vaccine
+      ? [vaccine]
+      : [];
+
+  if (list.length === 0) return null;
+
+  const firstVaccine = list[0];
+  const targetDate =
+    firstVaccine.dueDate instanceof Date
+      ? firstVaccine.dueDate
+      : new Date(firstVaccine.dueDate);
+
+  const monthNames = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  const monthStr = monthNames[targetDate.getMonth()];
+  const dayStr = String(targetDate.getDate()).padStart(2, '0');
+  const yearStr = targetDate.getFullYear();
+
+  const isMultiple = list.length > 1;
+
   return (
     <View style={styles.upcomingInjectionContainer}>
       <LinearGradient
@@ -345,40 +382,100 @@ function UpcomingInjectionCard({vaccine, scheduledDate}) {
         start={{x: 0, y: 0}}
         end={{x: 1, y: 1}}
         style={styles.upcomingInjectionGradient}>
-        {/* Floating Glass Badge */}
-        <View style={styles.floatingBadgeGlass}>
-          <Text style={styles.nextUpText}>NEXT UPCOMING VACCINATION</Text>
-        </View>
+        {!isMultiple ? (
+          <>
+            {/* Floating Glass Badge */}
+            <View style={styles.floatingBadgeGlass}>
+              <Text style={styles.nextUpText}>NEXT UPCOMING VACCINATION</Text>
+            </View>
 
-        <View style={styles.cardHeaderRow}>
-          {/* Enhanced Icon Bubble */}
-          <View style={styles.iconBubbleWhite}>
-            <Text style={styles.vaccineLargeIcon}>{vaccine.emoji}</Text>
-          </View>
+            <TouchableOpacity
+              activeOpacity={onSelectCategory ? 0.75 : 1}
+              onPress={() =>
+                onSelectCategory && onSelectCategory(firstVaccine.category)
+              }
+              style={styles.cardHeaderRow}>
+              {/* Enhanced Icon Bubble */}
+              <View style={styles.iconBubbleWhite}>
+                <Text style={styles.vaccineLargeIcon}>{firstVaccine.emoji}</Text>
+              </View>
 
-          {/* Core Info */}
-          <View style={styles.mainInfoSection}>
-            <Text style={styles.vaxNameText} numberOfLines={1}>
-              {vaccine.name}
-            </Text>
-            <Text style={styles.vaxCategoryText}>
-              {vaccine.category} Protection
-            </Text>
-          </View>
+              {/* Core Info */}
+              <View style={styles.mainInfoSection}>
+                <Text style={styles.vaxNameText} numberOfLines={1}>
+                  {firstVaccine.name}
+                </Text>
+                <Text style={styles.vaxCategoryText}>
+                  {firstVaccine.category} Protection
+                </Text>
+              </View>
 
-          {/* Glass Date Box */}
-          <View style={styles.glassDateBox}>
-            <Text style={styles.dueLabel}>DUE ON</Text>
+              {/* Glass Date Box */}
+              <View style={styles.glassDateBox}>
+                <Text style={styles.dueLabel}>DUE ON</Text>
+                <Text style={styles.dueDateValue}>{monthStr}</Text>
+                <Text style={styles.dueYearValue}>
+                  {dayStr}, {yearStr}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            {/* Top Multi-Vaccine Header */}
+            <View style={styles.multiCardHeader}>
+              <View style={{flex: 1, paddingRight: 10}}>
+                <View style={styles.floatingBadgeGlass}>
+                  <Text style={styles.nextUpText}>
+                    NEXT UPCOMING VACCINATIONS ({list.length})
+                  </Text>
+                </View>
+                <Text style={styles.multiMilestoneSubtitle}>
+                  {firstVaccine.category} Protection • {list.length} Vaccines Scheduled
+                </Text>
+              </View>
 
-            <Text style={styles.dueDateValue}>
-              {formattedDate.split(' ')[0]}
-            </Text>
+              {/* Glass Date Box */}
+              <View style={styles.glassDateBox}>
+                <Text style={styles.dueLabel}>DUE ON</Text>
+                <Text style={styles.dueDateValue}>{monthStr}</Text>
+                <Text style={styles.dueYearValue}>
+                  {dayStr}, {yearStr}
+                </Text>
+              </View>
+            </View>
 
-            <Text style={styles.dueYearValue}>
-              {formattedDate.split(' ').slice(1).join(' ')}
-            </Text>
-          </View>
-        </View>
+            {/* List of all upcoming vaccines for this due date */}
+            <View style={styles.multiVaccineList}>
+              {list.map((item, index) => (
+                <TouchableOpacity
+                  key={index}
+                  activeOpacity={onSelectCategory ? 0.75 : 1}
+                  onPress={() =>
+                    onSelectCategory && onSelectCategory(item.category)
+                  }
+                  style={styles.multiVaccineItem}>
+                  <View style={styles.multiIconBubble}>
+                    <Text style={styles.multiVaccineIcon}>{item.emoji}</Text>
+                  </View>
+                  <View style={styles.multiVaccineDetails}>
+                    <Text style={styles.multiVaccineName} numberOfLines={1}>
+                      {item.name}
+                    </Text>
+                    <Text style={styles.multiVaccineCategory}>
+                      {item.category} Protection
+                    </Text>
+                  </View>
+                  <View style={styles.multiShotPill}>
+                    <Text style={styles.multiShotPillText}>
+                      Shot {index + 1}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
 
         {/* Improved Footer */}
         <View style={styles.careFooter}>
@@ -388,7 +485,20 @@ function UpcomingInjectionCard({vaccine, scheduledDate}) {
           <Text style={styles.footerCareText}>
             Ensure Dhruv's immunity with timely shots.
           </Text>
-          <TouchableOpacity style={styles.bellButton}>
+          <TouchableOpacity
+            style={styles.bellButton}
+            activeOpacity={0.7}
+            onPress={() => {
+              Alert.alert(
+                'Vaccine Reminder 🔔',
+                `Reminder active for Dhruv's ${
+                  list.length > 1
+                    ? `${list.length} upcoming vaccinations`
+                    : list[0].name
+                } scheduled on ${dayStr} ${monthStr} ${yearStr}.`,
+                [{text: 'OK'}]
+              );
+            }}>
             <Text style={{fontSize: 16}}>🔔</Text>
           </TouchableOpacity>
         </View>
@@ -607,10 +717,14 @@ function PregnancyTrackerScreen() {
               Your Pregnancy Journey
             </Text>
             <Text style={styles.pregnancyWeek}>
-              Week {pregnancyData.weeksElapsed}
+              {pregnancyData.isDelivered
+                ? 'Delivery Complete 🎉'
+                : `Week ${pregnancyData.weeksElapsed}`}
             </Text>
             <Text style={styles.pregnancyDays}>
-              {pregnancyData.daysRemaining} days until due date
+              {pregnancyData.isDelivered
+                ? '🎉 Baby Dhruv born on 2 November 2025!'
+                : `${pregnancyData.daysRemaining} days until due date`}
             </Text>
           </View>
         </LinearGradient>
@@ -958,7 +1072,6 @@ function VaccineTrackerScreen() {
     /* ------------------ 9 MONTHS ------------------ */
     {
       name: 'MMR, IPV & PCV Booster',
-      dueDate: '2026-08-02',
       weeks: 37,
       emoji: '😷',
       category: '9 Months',
@@ -966,12 +1079,12 @@ function VaccineTrackerScreen() {
     },
 
     /* ------------------ 12 MONTHS ------------------ */
-    {name: 'Hepatitis A (Live)', weeks: 52, emoji: '🍽️', category: '12 Months'},
+    {name: 'Hepatitis A (Live)', weeks: 52, emoji: '🍽️', category: '12 Months', givenDate: '13 Nov 2026',},
 
     /* ------------------ 15 MONTHS ------------------ */
-    {name: 'MMR – 2', weeks: 64, emoji: '😷', category: '15 Months'},
-    {name: 'Varicella – 1', weeks: 64, emoji: '🐔', category: '15 Months'},
-    {name: 'PCV Booster', weeks: 64, emoji: '🫁', category: '15 Months'},
+    {name: 'MMR – 2', weeks: 64, emoji: '😷', category: '15 Months', dueDate: '2027-01-02',},
+    {name: 'Varicella – 1', weeks: 64, emoji: '🐔', category: '15 Months', dueDate: '2027-01-02',},
+    {name: 'PCV Booster', weeks: 64, emoji: '🫁', category: '15 Months', dueDate: '2027-01-02',},
 
     /* ------------------ 16–18 MONTHS ------------------ */
     {
@@ -1033,19 +1146,31 @@ function VaccineTrackerScreen() {
     day: 'numeric',
   });
 
-  const nextUpcomingVaccine = useMemo(() => {
+  const nextUpcomingVaccines = useMemo(() => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     const upcomingVaccines = vaccines
       .filter(v => !v.givenDate)
       .map(v => {
-        const dueDate = v.dueDate
-          ? new Date(v.dueDate)
-          : (() => {
-              const d = new Date(BABY_BIRTHDATE);
-              d.setDate(d.getDate() + v.weeks * 7);
-              return d;
-            })();
+        let dueDate;
+        if (v.dueDate) {
+          const parts = String(v.dueDate).split('-');
+          if (parts.length === 3) {
+            dueDate = new Date(
+              parseInt(parts[0], 10),
+              parseInt(parts[1], 10) - 1,
+              parseInt(parts[2], 10),
+            );
+          } else {
+            dueDate = new Date(v.dueDate);
+          }
+        } else {
+          const d = new Date(BABY_BIRTHDATE);
+          d.setDate(d.getDate() + v.weeks * 7);
+          dueDate = d;
+        }
+        dueDate.setHours(0, 0, 0, 0);
 
         return {
           ...v,
@@ -1054,10 +1179,16 @@ function VaccineTrackerScreen() {
       })
       .sort((a, b) => a.dueDate - b.dueDate);
 
-    const next = upcomingVaccines.find(v => v.dueDate >= today);
+    if (upcomingVaccines.length === 0) return [];
 
-    return next || upcomingVaccines[0];
+    const next =
+      upcomingVaccines.find(v => v.dueDate >= today) || upcomingVaccines[0];
+    const targetTime = next.dueDate.getTime();
+
+    return upcomingVaccines.filter(v => v.dueDate.getTime() === targetTime);
   }, [vaccines]);
+
+  const nextUpcomingVaccine = nextUpcomingVaccines[0];
 
   return (
     <View style={styles.screenContainer}>
@@ -1188,8 +1319,11 @@ function VaccineTrackerScreen() {
 
         <AgeCard />
 
-        {nextUpcomingVaccine && (
-          <UpcomingInjectionCard vaccine={nextUpcomingVaccine} />
+        {nextUpcomingVaccines && nextUpcomingVaccines.length > 0 && (
+          <UpcomingInjectionCard
+            vaccines={nextUpcomingVaccines}
+            onSelectCategory={setSelectedCategory}
+          />
         )}
 
         <Modal transparent visible={modalVisible} animationType="fade">
@@ -1332,6 +1466,8 @@ function VaccineTrackerScreen() {
 // --- MAIN ENTRY ---
 
 export default function BabyHealthApp() {
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 16 : 14) + (insets.bottom > 0 ? 6 : 8);
   const [activeTab, setActiveTab] = useState('vaccines');
   const navigation = useNavigation();
 
@@ -1353,13 +1489,13 @@ export default function BabyHealthApp() {
     <SafeAreaView
       style={[styles.safeArea, {backgroundColor: COLORS.background}]}>
       <StatusBar barStyle="dark-content" backgroundColor={COLORS.background} />
-      <View style={styles.container}>
+      <View style={[styles.container, {paddingBottom: 84 + bottomInset}]}>
         {activeTab === 'vaccines' && <VaccineTrackerScreen />}
         {activeTab === 'feeding' && <MilkTrackerScreen />}
         {activeTab === 'pregnancy' && <PregnancyTrackerScreen />}
         {activeTab === 'activity' && <PregnancyTrackerScreen />}
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, {bottom: bottomInset + 76}]} pointerEvents="box-none">
           <TouchableOpacity
             style={styles.playMusicButton}
             onPress={() => navigation.navigate('Play')}>
@@ -1373,7 +1509,7 @@ export default function BabyHealthApp() {
           </TouchableOpacity>
         </View>
 
-        <View style={[styles.tabNavigation, {backgroundColor: COLORS.surface}]}>
+        <View style={[styles.tabNavigation, {backgroundColor: COLORS.surface, bottom: bottomInset}]}>
           {tabs.map(tab => (
             <TouchableOpacity
               key={tab.id}
@@ -1584,6 +1720,82 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.3)',
     padding: 6,
     borderRadius: 10,
+  },
+  multiCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 14,
+  },
+  multiMilestoneSubtitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginTop: 2,
+    textShadowColor: 'rgba(0,0,0,0.15)',
+    textShadowOffset: {width: 0, height: 1},
+    textShadowRadius: 2,
+  },
+  multiVaccineList: {
+    marginVertical: 4,
+  },
+  multiVaccineItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.22)',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.35)',
+    marginBottom: 8,
+  },
+  multiIconBubble: {
+    width: 44,
+    height: 44,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: {width: 0, height: 2},
+  },
+  multiVaccineIcon: {
+    fontSize: 22,
+  },
+  multiVaccineDetails: {
+    flex: 1,
+    marginLeft: 12,
+    marginRight: 8,
+  },
+  multiVaccineName: {
+    fontSize: 15,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.2,
+  },
+  multiVaccineCategory: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: 'rgba(255, 255, 255, 0.88)',
+    marginTop: 2,
+  },
+  multiShotPill: {
+    backgroundColor: 'rgba(255, 255, 255, 0.28)',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.4)',
+  },
+  multiShotPillText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 0.5,
   },
 
   statsRow: {
@@ -2083,7 +2295,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     elevation: 16,
     position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 24 : 12,
+    bottom: 16,
     left: 14,
     right: 14,
     height: 66,
@@ -2117,7 +2329,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     zIndex: 10,
-    bottom: Platform.OS === 'ios' ? 98 : 86,
+    bottom: 86,
   },
   playMusicButton: {
     width: 64,

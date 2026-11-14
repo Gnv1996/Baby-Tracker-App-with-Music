@@ -18,6 +18,7 @@ import Ionicons from "react-native-vector-icons/Ionicons"
 import FontAwesome5 from "react-native-vector-icons/FontAwesome5"
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons"
 import AsyncStorage from "@react-native-async-storage/async-storage"
+import { useSafeAreaInsets } from "react-native-safe-area-context"
 import PregnancyProgress from "./Pregnancy-progress"
 import { checkAndNotifyMonthComplete } from "./MonthlyNotification"
 import PregnancyDayTracker from "./PregnancyDayTracker"
@@ -25,10 +26,12 @@ import PregnancyWeekToMonth from "./PregnancyWeekToMonth"
 
 import BottomNavigation from "./bottom-navigation"
 
-const LMP_DATE = new Date(new Date().getFullYear(), 1, 18)
+const LMP_DATE = new Date(2025, 1, 18)
 const BABY_BIRTH_DATE = new Date(2025, 10, 2)
 
 const HomeScreen = ({ navigation }) => {
+  const insets = useSafeAreaInsets()
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 16 : 14) + (insets.bottom > 0 ? 6 : 8)
   const [showCongratsModal, setShowCongratsModal] = useState(false)
   const [showMonthModal, setShowMonthModal] = useState(false)
 
@@ -61,8 +64,9 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     const calculatePregnancyInfo = () => {
       const today = new Date()
+      const isDelivered = today >= BABY_BIRTH_DATE
       // 🍼 Stop updating after birth date
-      const calculationDate = today > BABY_BIRTH_DATE ? BABY_BIRTH_DATE : today
+      const calculationDate = isDelivered ? BABY_BIRTH_DATE : today
 
       // Calculate due date (LMP + 280 days)
       const dueDate = new Date(LMP_DATE)
@@ -73,12 +77,14 @@ const HomeScreen = ({ navigation }) => {
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
   
       // Calculate weeks and days
-      const currentWeek = Math.floor(diffDays / 7)
-      const currentDay = diffDays % 7
+      const currentWeek = isDelivered ? 37 : Math.floor(diffDays / 7)
+      const currentDay = isDelivered ? 257 : diffDays % 7
   
       // Determine trimester
       let trimester = ""
-      if (currentWeek < 13) {
+      if (isDelivered) {
+        trimester = "Delivered (Born 2 Nov 2025)"
+      } else if (currentWeek < 13) {
         trimester = "First"
       } else if (currentWeek < 27) {
         trimester = "Second"
@@ -89,7 +95,10 @@ const HomeScreen = ({ navigation }) => {
       let babySize = ""
       let babySizeComparison = ""
   
-      if (currentWeek < 5) {
+      if (isDelivered) {
+        babySize = "Baby Born 🎉"
+        babySizeComparison = "Dhruv Born 2 Nov 2025 👶"
+      } else if (currentWeek < 5) {
         babySize = "< 0.1 inches"
         babySizeComparison = "Poppy Seed"
       } else if (currentWeek < 6) {
@@ -478,7 +487,7 @@ const HomeScreen = ({ navigation }) => {
 
 
 
-      <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingBottom: 150 }]}>
+      <ScrollView style={styles.container} contentContainerStyle={[styles.contentContainer, { paddingBottom: bottomInset + 140 }]}>
         {/* Baby Image Background */}
         <ImageBackground
           source={getBabyImage(pregnancyInfo.currentWeek)}
@@ -493,39 +502,29 @@ const HomeScreen = ({ navigation }) => {
           {/* Top Info Bar */}
           <View style={styles.topInfoBar}>
             <View style={styles.infoCard}>
-              <Text style={styles.infoLabel}>Day</Text>
-              <Text style={styles.infoValue}>{pregnancyInfo.currentDay}</Text>
+              <Text style={styles.infoLabel}>{new Date() >= BABY_BIRTH_DATE ? "Delivered" : "Day"}</Text>
+              <Text style={styles.infoValue}>
+                {new Date() >= BABY_BIRTH_DATE ? "Day 257" : pregnancyInfo.currentDay}
+              </Text>
             </View>
 
             <Animated.View style={[styles.weekBadge, { transform: [{ scale: pulseAnim }] }]}>
               <LinearGradient colors={["#FF6F91", "#FF9E9E"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.weekBadgeGradient}>
                 <Text style={styles.weekNumber}>{pregnancyInfo.currentWeek}</Text>
-                <Text style={[styles.weekLabel, { color: "#fff" }]}>WEEK</Text>
+                <Text style={[styles.weekLabel, { color: "#fff" }]}>
+                  {new Date() >= BABY_BIRTH_DATE ? "BORN 🎉" : "WEEK"}
+                </Text>
               </LinearGradient>
             </Animated.View>
 
-            {/* <View style={styles.weekBadge}>
-              <LinearGradient
-                colors={["#FF6F91", "#FF9E9E"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.weekBadgeGradient}
-              >
-                <Text style={styles.weekNumber}>{pregnancyInfo.currentWeek}</Text>
-                <Text style={[styles.weekLabel,{color:'#fff'}]}>WEEK</Text>
-              </LinearGradient>
-            </View> */}
             <View style={styles.infoCard}>
-  <Text style={styles.infoLabel}>Trimester</Text>
-  <TouchableOpacity onPress={() => navigation.navigate('MyBaby')}>
-    <Text style={styles.infoValue}>{pregnancyInfo.trimester.split(" ")[0]}</Text>
-  </TouchableOpacity>
-</View>
-
-            {/* <View style={styles.infoCard}>
-              <Text style={styles.infoLabel}>Trimester</Text>
-              <Text style={styles.infoValue}>{pregnancyInfo.trimester.split(" ")[0]}</Text>
-            </View> */}
+              <Text style={styles.infoLabel}>Status</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('MyBaby')}>
+                <Text style={styles.infoValue}>
+                  {new Date() >= BABY_BIRTH_DATE ? "Born 👶" : pregnancyInfo.trimester.split(" ")[0]}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {/* Week Circles */}
@@ -564,6 +563,33 @@ const HomeScreen = ({ navigation }) => {
 
         {/* Pregnancy Day Tracker */}
         <View style={styles.trackerContainer}>
+          {/* Baby Born Celebratory Banner */}
+          {new Date() >= BABY_BIRTH_DATE && (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => navigation.navigate('MyBaby')}
+              style={styles.babyBornBanner}>
+              <LinearGradient
+                colors={['#FF6F91', '#FF9E9E']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.babyBornGradient}>
+                <View style={styles.babyBornEmojiBox}>
+                  <Text style={{ fontSize: 24 }}>👶</Text>
+                </View>
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                  <Text style={styles.babyBornTitle}>
+                    🎉 Baby Dhruv Born on 2 Nov 2025!
+                  </Text>
+                  <Text style={styles.babyBornSubtitle} numberOfLines={1}>
+                    Healthy baby boy delivered • Tap to open Baby Hub & Vaccines 💖
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#FFFFFF" />
+              </LinearGradient>
+            </TouchableOpacity>
+          )}
+
           <PregnancyDayTracker />
         </View>
 
@@ -793,8 +819,8 @@ const HomeScreen = ({ navigation }) => {
       {/* Bottom Navigation - NEW COMPONENT */}
       <BottomNavigation currentScreen="Home" navigation={navigation} />
 
-      {/* Music Button - Moved up to avoid overlap with bottom navigation */}
-      <View style={[styles.footer, { bottom: 90 }]}>
+      {/* Music Button - Safely positioned above bottom navigation */}
+      <View style={[styles.footer, { bottom: bottomInset + 76 }]} pointerEvents="box-none">
         <TouchableOpacity style={styles.playMusicButton} onPress={() => navigation.navigate("Play")}>
           <LinearGradient
             colors={["#FF6F91", "#FF9E9E"]}
@@ -1432,6 +1458,43 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "800",
     letterSpacing: 0.5,
+  },
+  babyBornBanner: {
+    marginHorizontal: 20,
+    marginTop: 2,
+    marginBottom: 4,
+    borderRadius: 20,
+    overflow: "hidden",
+    elevation: 4,
+    shadowColor: "#FF6F91",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  babyBornGradient: {
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  babyBornEmojiBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#FFFFFF",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  babyBornTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: "#FFFFFF",
+  },
+  babyBornSubtitle: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: "rgba(255, 255, 255, 0.95)",
+    marginTop: 2,
   },
 })
 

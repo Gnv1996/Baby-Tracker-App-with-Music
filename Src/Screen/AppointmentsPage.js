@@ -55,7 +55,7 @@ export default function AppointmentsPage() {
         'Newborn baby examination',
       ],
       notes:
-        'C-section was performed on 2 November 2025 at around 11:00 AM due to fluctuating BP. A healthy baby boy was born. Both mother and baby are stable after delivery. Doctor advised rest and postnatal care.',
+      'A C-section was successfully performed on 2 November 2025 at around 11:00 AM due to fluctuating BP. A healthy baby boy was born at 11:27 AM. Both mother and newborn baby were stable after delivery. Doctor advised adequate rest, prescribed medicines, and proper postnatal care.',
       instructions: [
         'Take complete bed rest for at least 2 weeks',
         'Continue prescribed medicines and supplements',

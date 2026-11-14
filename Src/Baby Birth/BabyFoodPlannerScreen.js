@@ -152,7 +152,7 @@ export default function BabyFoodPlannerScreen({ navigation }) {
       </ScrollView>
       
       {/* Disclaimer Bottom Banner */}
-      <View style={styles.footer}>
+      <View style={[styles.footer, { paddingBottom: 14 + Math.max(insets.bottom, 12) }]}>
         <Text style={styles.footerText}>⚠️ Always consult your pediatrician for health concerns.</Text>
       </View>
     </SafeAreaView>

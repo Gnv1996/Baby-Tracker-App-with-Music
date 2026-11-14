@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import dayjs from 'dayjs';
 
-const BIRTH_DATE = dayjs('2025-02-18');
+const BIRTH_DATE = dayjs('2025-11-02');
 
 // Helper function to request notification permission (Android 13+)
 async function requestNotificationPermissionIfNeeded() {
@@ -39,7 +39,7 @@ export async function checkAndNotifyMonthComplete() {
 
       await notifee.displayNotification({
         title: '🎉 Congratulations Gautam & Nici!',
-        body: `Your baby is now ${monthsCompleted} month${monthsCompleted > 1 ? 's' : ''} old! 🍼👶`,
+        body: `Dhruv is now ${monthsCompleted} month${monthsCompleted > 1 ? 's' : ''} old! 🍼👶`,
         android: {
           channelId: 'milestones',
           smallIcon: 'ic_launcher', // Make sure this icon exists

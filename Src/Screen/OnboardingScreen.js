@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -114,6 +115,8 @@ export default function OnboardingScreen({ navigation }) {
   const viewConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   const currentSlide = SLIDES[currentIndex] || SLIDES[0];
+  const insets = useSafeAreaInsets();
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'ios' ? 34 : 20) + (insets.bottom > 0 ? 8 : 4);
 
   return (
     <View style={styles.container}>
@@ -276,7 +279,7 @@ export default function OnboardingScreen({ navigation }) {
       />
 
       {/* Bottom Controls Area */}
-      <View style={styles.bottomControls}>
+      <View style={[styles.bottomControls, { paddingBottom: bottomInset }]}>
         {/* Pagination Dots */}
         <View style={styles.pagination}>
           {SLIDES.map((_, i) => {

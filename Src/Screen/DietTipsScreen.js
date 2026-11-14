@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import BottomNavigation from './bottom-navigation';
 
 const { width } = Dimensions.get('window');
@@ -84,8 +85,9 @@ const FruitCard = ({ fruit }) => (
 );
 
 const DietTipsScreen = () => {
-
-    const navigation=useNavigation()
+  const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
+  const bottomSafe = Math.max(insets.bottom, 16);
   return (
     <View style={styles.container}>
       {/* Enhanced Header */}
@@ -223,7 +225,7 @@ const DietTipsScreen = () => {
         </View>
 
         {/* Bottom Spacing */}
-        <View style={styles.bottomSpacing} />
+        <View style={[styles.bottomSpacing, { height: 85 + bottomSafe }]} />
       </ScrollView>
 
       <BottomNavigation currentScreen="Diet" navigation={navigation} />

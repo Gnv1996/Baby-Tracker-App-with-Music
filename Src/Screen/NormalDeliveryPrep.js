@@ -67,9 +67,9 @@ const NormalDeliveryPrep = ({
     const today = new Date();
     const deliveryDate = new Date(2025, 10, 2); // 2 Nov 2025
 
-const babyBorn = today >= deliveryDate;
-
-    const diffInMs = today - lmpDate;
+    const babyBorn = today >= deliveryDate;
+    const calculationDate = babyBorn ? deliveryDate : today;
+    const diffInMs = calculationDate - lmpDate;
     const diffInWeeks = Math.floor(diffInMs / (1000 * 60 * 60 * 24 * 7));
     return Math.min(Math.max(diffInWeeks, 1), 40);
   };
@@ -306,7 +306,7 @@ const babyBorn = today >= deliveryDate;
             Every day brings you closer to meeting your little one. Keep up the amazing work! 💕
           </Text>
         </View>
-        <View style={{ height: 85 }} />
+        <View style={{ height: 85 + Math.max(insets.bottom, 16) }} />
       </ScrollView>
 
       <BottomNavigation currentScreen="NormalDelivery" navigation={navigation} />

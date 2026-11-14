@@ -45,8 +45,12 @@ export default function PregnancyMonthChartComponent({ lmpDate = "2025-02-18", l
       Alert.alert("📋 Copied", text, [{ text: "OK", style: "default" }])
     }
   
+    // Baby birth date: 2 Nov 2025
+    const deliveryDate = new Date("2025-11-02T00:00:00")
+    const isDelivered = today >= deliveryDate
+
     // Find current month
-    const currentMonthId = months.find((m) => today >= m.start && today <= m.end)?.id
+    const currentMonthId = isDelivered ? "9" : months.find((m) => today >= m.start && today <= m.end)?.id
   
   return (
     <View style={styles.container}>

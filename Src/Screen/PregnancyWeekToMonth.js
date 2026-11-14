@@ -26,6 +26,7 @@ const PregnancyWeekToMonth = () => {
   
   // LMP Date: February 18, 2025
   const lmpDate = useMemo(() => new Date(2025, 1, 18), []) // 1 = February (0-indexed)
+  const babyBirthDate = useMemo(() => new Date(2025, 10, 2), []) // Nov 2, 2025
 
   // Corrected pregnancy timeline with proper calendar months
   const weekToMonthData = useMemo(() => [
@@ -125,14 +126,17 @@ const PregnancyWeekToMonth = () => {
   useEffect(() => {
     const calculatePregnancyInfo = () => {
       const today = new Date()
-      const diffTime = Math.abs(today.getTime() - lmpDate.getTime())
+      const isDelivered = today >= babyBirthDate
+      const calculationDate = isDelivered ? babyBirthDate : today
+
+      const diffTime = Math.abs(calculationDate.getTime() - lmpDate.getTime())
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
 
       // Calculate weeks (pregnancy weeks start from LMP)
-      const calculatedWeek = Math.floor(diffDays / 7) + 1 // Add 1 because pregnancy starts at week 1
+      const calculatedWeek = isDelivered ? 37 : Math.floor(diffDays / 7) + 1
       
       // Find current month based on week
-      let calculatedMonth = 1
+      let calculatedMonth = isDelivered ? 9 : 1
       for (const monthData of weekToMonthData) {
         if (monthData.weeks.includes(calculatedWeek)) {
           calculatedMonth = monthData.month
@@ -152,7 +156,7 @@ const PregnancyWeekToMonth = () => {
     // Update daily
     const timer = setInterval(calculatePregnancyInfo, 86400000)
     return () => clearInterval(timer)
-  }, [lmpDate, weekToMonthData])
+  }, [lmpDate, babyBirthDate, weekToMonthData])
 
   const getCalendarMonth = () => {
     const today = new Date();
@@ -310,14 +314,20 @@ const PregnancyWeekToMonth = () => {
               </View>
               <View style={styles.headerTextContainer}>
                 <Text style={styles.headerTitle}>Pregnancy Timeline</Text>
-                <Text style={styles.headerSubtitle}>
-                  {currentMonthData?.monthName} • Week {currentWeek}
+                <Text style={styles.headerSubtitle} numberOfLines={1}>
+                  {new Date() >= babyBirthDate
+                    ? "October–November • Month 9"
+                    : `${currentMonthData?.monthName} • Week ${currentWeek}`}
                 </Text>
-                <Text style={styles.headerDescription}>
-                  {currentMonthData?.description}
+                <Text style={styles.headerDescription} numberOfLines={1}>
+                  {new Date() >= babyBirthDate
+                    ? "🎉 Baby Dhruv Born • Day 257"
+                    : currentMonthData?.description}
                 </Text>
-                <Text style={styles.headerDays}>
-                  {daysPregnant} days pregnant
+                <Text style={styles.headerDays} numberOfLines={1}>
+                  {new Date() >= babyBirthDate
+                    ? "Delivery Completed on 2 Nov 2025 👶"
+                    : `${daysPregnant} days pregnant`}
                 </Text>
               </View>
             </View>
@@ -352,10 +362,23 @@ const PregnancyWeekToMonth = () => {
             <View style={styles.progressBar}>
               <LinearGradient
                 colors={["#FF6F91", "#FF9E9E"]}
-                style={[styles.progressFill, { width: `${(currentMonth / 9) * 100}%` }]}
+                style={[
+                  styles.progressFill,
+                  {
+                    width: `${
+                      new Date() >= babyBirthDate
+                        ? 100
+                        : (currentMonth / 9) * 100
+                    }%`,
+                  },
+                ]}
               />
             </View>
-            <Text style={styles.progressText}>{Math.round((currentMonth / 9) * 100)}% Complete</Text>
+            <Text style={styles.progressText}>
+              {new Date() >= babyBirthDate
+                ? "100% Complete • Baby Born 🎉"
+                : `${Math.round((currentMonth / 9) * 100)}% Complete`}
+            </Text>
           </View>
 
           {/* Enhanced month cards */}
@@ -608,28 +631,29 @@ const styles = StyleSheet.create({
   },
   headerTextContainer: {
     flex: 1,
+    paddingRight: 8,
   },
   headerTitle: {
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#FFF",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: "rgba(255,255,255,0.9)",
+    fontSize: 13,
+    color: "rgba(255,255,255,0.95)",
     fontWeight: "600",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   headerDescription: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.8)",
+    color: "rgba(255,255,255,0.85)",
     lineHeight: 16,
     marginBottom: 2,
   },
   headerDays: {
     fontSize: 11,
-    color: "rgba(255,255,255,0.7)",
+    color: "rgba(255,255,255,0.75)",
     fontStyle: 'italic',
   },
   iconContainer: {
